@@ -56,12 +56,9 @@ const Login = () => {
 
     const handleLogin = async (values, { setSubmitting }) => {
         try {
-            console.log('Login attempt', values);
-
-            if (rememberMe) {
-                // Save credentials to AsyncStorage
-                await AsyncStorage.setItem('userName', values.userName);
-                await AsyncStorage.setItem('password', values.password);
+            // if (rememberMe) {
+                // await AsyncStorage.setItem('userName', values.userName);
+                // await AsyncStorage.setItem('password', values.password);
                 try {
                     const response = await dispatch(login({ email: values.userName, password: values.password }));
                     console.log('response', response)
@@ -76,11 +73,12 @@ const Login = () => {
                     setSubmitting(false);
                 }
 
-            } else {
-                // Clear saved credentials if "Remember me" is unchecked
-                await AsyncStorage.removeItem('userName');
-                await AsyncStorage.removeItem('password');
-            }
+            // }
+            //  else {
+            //     // Clear saved credentials if "Remember me" is unchecked
+            //     await AsyncStorage.removeItem('userName');
+            //     await AsyncStorage.removeItem('password');
+            // }
         } catch (error) {
             console.error('Login error', error);
         } finally {
