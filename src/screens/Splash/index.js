@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text, StyleSheet, View, StatusBar } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient'; // Import LinearGradient
+import LinearGradient from 'react-native-linear-gradient'; 
 
 const Splash = () => {
     return (
@@ -10,11 +10,11 @@ const Splash = () => {
             end={{ x: 0, y: 1 }}
             style={styles.container}
         >
+        <View style={styles.textContainer}>
             <StatusBar backgroundColor="#2F5E41" barStyle="light-content" />
-            <View style={styles.textContainer}>
-                <Text style={styles.title}>INVENTORY MANAGEMENT</Text>
-            </View>
-        </LinearGradient>
+            <Text style={styles.title}>INVENTORY MANAGEMENT</Text>
+        </View>
+       </LinearGradient>
     );
 };
 
@@ -31,8 +31,8 @@ const styles = StyleSheet.create({
         color: 'white',
         fontSize: 27,
         fontWeight: '600',
-        paddingLeft:6,
-        paddingRight:6
+        paddingLeft: 6,
+        paddingRight: 6
     },
 });
 

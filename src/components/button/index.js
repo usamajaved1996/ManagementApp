@@ -1,6 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient'; // Import LinearGradient
+import LinearGradient from 'react-native-linear-gradient'; 
 import * as customStyles from "../../utils/color";
 
 const Button = ({ text, onPress, loading }) => {
@@ -13,9 +13,9 @@ const Button = ({ text, onPress, loading }) => {
         style={styles.button}
       >
         {loading ? (
-          <ActivityIndicator size="small" color="#fff" /> // Loader when loading is true
+          <ActivityIndicator size="small" color="#fff" /> 
         ) : (
-          <Text style={styles.buttonText}>{text}</Text> // Button text
+          <Text style={styles.buttonText}>{text}</Text>
         )}
       </LinearGradient>
     </TouchableOpacity>
