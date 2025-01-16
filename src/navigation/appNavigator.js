@@ -17,6 +17,12 @@ import RevenueImg from '../assets/images/revenueImg.png';
 import ReportImg from '../assets/images/reportImg.png';
 import GrowthImg from '../assets/images/growthImg.png';
 import InventoryImg from '../assets/images/inventoryImg.png';
+import PayRollImg from '../assets/images/payrollImg.png';
+import PayRoll from '../screens/PayRoll';
+import { DrawerActions } from '@react-navigation/native';
+import ProfileScreen from '../screens/Profile';
+import Notifications from '../screens/Notification';
+
 
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -38,7 +44,6 @@ const drawerItemStyles = {
 };
 
 const CustomDrawerContent = ({ props, onLogout }) => {
-  const navigation = useNavigation();
   const dispatch = useDispatch();
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
 
@@ -70,6 +75,8 @@ const CustomDrawerContent = ({ props, onLogout }) => {
 };
 
 const AppDrawer = ({ onLogout }) => {
+  const navigation = useNavigation();
+
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent props={props} onLogout={onLogout} />}
@@ -89,37 +96,72 @@ const AppDrawer = ({ onLogout }) => {
       <Drawer.Screen
         name="Home"
         component={Dashboard}
-        options={{
-          ...drawerItemStyles,
-          header: () => (
-            <View style={styles.headerContainer}>
-              {/* <Image source={require('../assets/images/profile.png')} style={styles.profileImage} /> */}
-              <View style={styles.welcomeContainer}>
-                <Text style={styles.welcomeText}>Welcome Back!</Text>
-                <Text style={styles.restaurantName}>Nusantara Restaurant 👋</Text>
-              </View>
-              {/* <Image source={require('../assets/images/notification.png')} style={styles.notificationIcon} /> */}
+        options={({ navigation }) => ({
+          headerTitleAlign: 'center',
+          headerBackground: () => (
+            <LinearGradient
+              colors={['#2F5E41', '#2B2B95']} // Gradient colors
+              style={{ flex: 1 }}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
+          ),
+          // headerBackground: () => (
+          //   <Image 
+          //     source={HeaderImg} 
+          //     style={styles.headerImgStyle} 
+          //     resizeMode="cover" 
+          //   />
+          // ),
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} style={{ marginLeft: 16 }}>
+              <Image source={require('../assets/images/menu.png')} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity onPress={() => console.log('Notification clicked')} style={{ marginRight: 16 }}>
+              <Image source={require('../assets/images/notification.png')} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
+          headerTitle: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
+                Home
+              </Text>
             </View>
           ),
-          drawerLabel: ({ focused, color }) => (
-            <View style={styles.drawerItemContainer}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image source={HomeImg} style={{ width: 30, height: 30 }} />
-                <Text style={{ marginLeft: 20, fontSize: 20, color: color, fontWeight: '500' }}>
-                  Home
-                </Text>
-              </View>
+          drawerLabel: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Image source={require('../assets/images/home.png')} style={{ width: 20, height: 20 }} />
+              <Text style={{ marginLeft: 20, fontSize: 16, color: color, fontWeight: '400' }}>{'Home'}</Text>
             </View>
           ),
-        }}
+        })}
       />
+
       <Drawer.Screen
         name="Inventory"
         component={Inventory}
-        options={{
-          headerStyle: { backgroundColor: '#0E0E52' }, // Optional: Customize header background color
-          headerTintColor: 'white', // Optional: Set header text color
-          headerTitleAlign: 'center', // Align title to the center
+        options={({ navigation }) => ({
+          headerTitleAlign: 'center',
+          headerBackground: () => (
+            <LinearGradient
+              colors={['#2F5E41', '#2B2B95']} // Gradient colors
+              style={{ flex: 1 }}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
+          ),
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} style={{ marginLeft: 16 }}>
+              <Image source={require('../assets/images/menu.png')} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity onPress={() => console.log('Notification clicked')} style={{ marginRight: 16 }}>
+              <Image source={require('../assets/images/notification.png')} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
           headerTitle: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
@@ -127,118 +169,204 @@ const AppDrawer = ({ onLogout }) => {
               </Text>
             </View>
           ),
-          drawerLabel: ({ focused, color }) => (
-            <View style={styles.drawerItemContainer}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image source={InventoryImg} style={{ width: 30, height: 30 }} />
-                <Text style={{ marginLeft: 20, fontSize: 20, color: color, fontWeight: '500' }}>
-                  Inventory
-                </Text>
-              </View>
+          drawerLabel: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Image source={InventoryImg} style={{ width: 20, height: 20 }} />
+              <Text style={{ marginLeft: 20, fontSize: 16, color: color, fontWeight: '400' }}>{'Inventory'}</Text>
             </View>
           ),
-        }}
+        })}
       />
 
       <Drawer.Screen
         name="Revenue"
         component={Revenue}
-        options={{
-          ...drawerItemStyles,
-          headerStyle: { backgroundColor: '#fff' },
-          headerTintColor: '#EC5D78',
+        options={({ navigation }) => ({
           headerTitleAlign: 'center',
-          drawerLabel: ({ focused, color }) => (
-            <View style={styles.drawerItemContainer}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image source={RevenueImg} style={{ width: 30, height: 30 }} />
-                <Text style={{ marginLeft: 20, fontSize: 20, color: color, fontWeight: '500' }}>
-                  Revenue
-                </Text>
-              </View>
-            </View>
+          headerBackground: () => (
+            <LinearGradient
+              colors={['#2F5E41', '#2B2B95']} // Gradient colors
+              style={{ flex: 1 }}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
           ),
           headerLeft: () => (
-            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-              <Image source={RevenueImg} style={{ width: 24, height: 24 }} />
+            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} style={{ marginLeft: 16 }}>
+              <Image source={require('../assets/images/menu.png')} style={{ width: 24, height: 24 }} />
             </TouchableOpacity>
           ),
-        }}
+          headerRight: () => (
+            <TouchableOpacity onPress={() => console.log('Notification clicked')} style={{ marginRight: 16 }}>
+              <Image source={require('../assets/images/notification.png')} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
+          headerTitle: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
+              Revenue
+              </Text>
+            </View>
+          ),
+          drawerLabel: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Image source={RevenueImg} style={{ width: 20, height: 20 }} />
+              <Text style={{ marginLeft: 20, fontSize: 16, color: color, fontWeight: '400' }}>{'Revenue'}</Text>
+            </View>
+          ),
+        })}
       />
       <Drawer.Screen
         name="Growth"
         component={Growth}
-        options={{
-          ...drawerItemStyles,
-          headerStyle: { backgroundColor: '#fff' },
-          headerTintColor: '#EC5D78',
+        options={({ navigation }) => ({
           headerTitleAlign: 'center',
-          drawerLabel: ({ focused, color }) => (
-            <View style={styles.drawerItemContainer}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image source={GrowthImg} style={{ width: 30, height: 30 }} />
-                <Text style={{ marginLeft: 20, fontSize: 20, color: color, fontWeight: '500' }}>
-                  Growth
-                </Text>
-              </View>
-            </View>
+          headerBackground: () => (
+            <LinearGradient
+              colors={['#2F5E41', '#2B2B95']} // Gradient colors
+              style={{ flex: 1 }}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
           ),
           headerLeft: () => (
-            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-              <Image source={GrowthImg} style={{ width: 24, height: 24 }} />
+            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} style={{ marginLeft: 16 }}>
+              <Image source={require('../assets/images/menu.png')} style={{ width: 24, height: 24 }} />
             </TouchableOpacity>
           ),
-        }}
+          headerRight: () => (
+            <TouchableOpacity onPress={() => console.log('Notification clicked')} style={{ marginRight: 16 }}>
+              <Image source={require('../assets/images/notification.png')} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
+          headerTitle: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
+              Growth
+              </Text>
+            </View>
+          ),
+          drawerLabel: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Image source={GrowthImg} style={{ width: 20, height: 20 }} />
+              <Text style={{ marginLeft: 20, fontSize: 16, color: color, fontWeight: '400' }}>{'Growth'}</Text>
+            </View>
+          ),
+        })}
       />
       <Drawer.Screen
         name="Report"
         component={Reports}
-        options={{
-          ...drawerItemStyles,
-          headerStyle: { backgroundColor: '#fff' },
-          headerTintColor: '#EC5D78',
+        options={({ navigation }) => ({
           headerTitleAlign: 'center',
-          drawerLabel: ({ focused, color }) => (
-            <View style={styles.drawerItemContainer}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image source={ReportImg} style={{ width: 27, height: 27 }} />
-                <Text style={{ marginLeft: 20, fontSize: 20, color: color, fontWeight: '500' }}>
-                  Report
-                </Text>
-              </View>
-            </View>
+          headerBackground: () => (
+            <LinearGradient
+              colors={['#2F5E41', '#2B2B95']} // Gradient colors
+              style={{ flex: 1 }}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
           ),
           headerLeft: () => (
-            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-              <Image source={ReportImg} style={{ width: 24, height: 24 }} />
+            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} style={{ marginLeft: 16 }}>
+              <Image source={require('../assets/images/menu.png')} style={{ width: 24, height: 24 }} />
             </TouchableOpacity>
           ),
-        }}
+          headerRight: () => (
+            <TouchableOpacity onPress={() => console.log('Notification clicked')} style={{ marginRight: 16 }}>
+              <Image source={require('../assets/images/notification.png')} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
+          headerTitle: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
+              Report
+              </Text>
+            </View>
+          ),
+          drawerLabel: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Image source={ReportImg} style={{ width: 20, height: 20 }} />
+              <Text style={{ marginLeft: 20, fontSize: 16, color: color, fontWeight: '400' }}>{'Report'}</Text>
+            </View>
+          ),
+        })}
+      />
+      <Drawer.Screen
+        name="Payroll"
+        component={PayRoll}
+        options={({ navigation }) => ({
+          headerTitleAlign: 'center',
+          headerBackground: () => (
+            <LinearGradient
+              colors={['#2F5E41', '#2B2B95']} // Gradient colors
+              style={{ flex: 1 }}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
+          ),
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} style={{ marginLeft: 16 }}>
+              <Image source={require('../assets/images/menu.png')} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
+          headerRight: () => (
+            <TouchableOpacity onPress={() => console.log('Notification clicked')} style={{ marginRight: 16 }}>
+              <Image source={require('../assets/images/notification.png')} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
+          headerTitle: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
+              PayRoll
+              </Text>
+            </View>
+          ),
+          drawerLabel: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Image source={PayRollImg} style={{ width: 20, height: 20 }} />
+              <Text style={{ marginLeft: 20, fontSize: 16, color: color, fontWeight: '400' }}>{'PayRoll'}</Text>
+            </View>
+          ),
+        })}
       />
       <Drawer.Screen
         name="Settings"
         component={Settings}
-        options={{
-          ...drawerItemStyles,
-          headerStyle: { backgroundColor: '#fff' },
-          headerTintColor: '#EC5D78',
+        options={({ navigation }) => ({
           headerTitleAlign: 'center',
-          drawerLabel: ({ focused, color }) => (
-            <View style={styles.drawerItemContainer}>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Image source={SettingImg} style={{ width: 30, height: 30 }} />
-                <Text style={{ marginLeft: 20, fontSize: 20, color: color, fontWeight: '500' }}>
-                  Settings
-                </Text>
-              </View>
-            </View>
+          headerBackground: () => (
+            <LinearGradient
+              colors={['#2F5E41', '#2B2B95']} // Gradient colors
+              style={{ flex: 1 }}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+            />
           ),
           headerLeft: () => (
-            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())}>
-              <Image source={GrowthImg} style={{ width: 24, height: 24 }} />
+            <TouchableOpacity onPress={() => navigation.dispatch(DrawerActions.openDrawer())} style={{ marginLeft: 16 }}>
+              <Image source={require('../assets/images/menu.png')} style={{ width: 24, height: 24 }} />
             </TouchableOpacity>
           ),
-        }}
+          headerRight: () => (
+            <TouchableOpacity onPress={() => console.log('Notification clicked')} style={{ marginRight: 16 }}>
+              <Image source={require('../assets/images/notification.png')} style={{ width: 24, height: 24 }} />
+            </TouchableOpacity>
+          ),
+          headerTitle: () => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
+              Settings
+              </Text>
+            </View>
+          ),
+          drawerLabel: ({ color }) => (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Image source={SettingImg} style={{ width: 20, height: 20 }} />
+              <Text style={{ marginLeft: 20, fontSize: 16, color: color, fontWeight: '400' }}>{'Settings'}</Text>
+            </View>
+          ),
+        })}
       />
     </Drawer.Navigator>
   );
@@ -247,9 +375,11 @@ const AppDrawer = ({ onLogout }) => {
 const AppNavigator = ({ onLogout }) => {
   return (
     <Stack.Navigator>
-      <Stack.Screen name="Home" options={{ headerShown: false }}>
+      <Stack.Screen name="Main" options={{ headerShown: false }}>
         {() => <AppDrawer onLogout={onLogout} />}
       </Stack.Screen>
+      <Stack.Screen name='Profile' component={ProfileScreen} options={{ headerShown: false }} />
+      <Stack.Screen name='Notification' component={Notifications} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 };
@@ -261,15 +391,9 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingVertical: 40,
-    paddingRight: 10,
     flex: 1,
   },
-  closeDrawerButton: {
-    margin: 30,
-    backgroundColor: '#fff',
-    width: 35, height: 35,
-    borderWidth: 1, borderColor: 'white', borderRadius: 12,
-  },
+
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',

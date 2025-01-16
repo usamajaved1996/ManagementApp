@@ -14,7 +14,8 @@ export const font = {
 export const backgroundColors = {
 	white: "white",
 	primary1: "#285238",
-	primary2: "##212121",
+	primary2: "#212121",
+	bGColor:'#f7f7f7'
 
 };
 export const Colors = {
@@ -23,5 +24,9 @@ export const Colors = {
 	textInputBorder: '#0000004D',
 	textInputBgColor: '#fff',
 	placeHolderColor: 'black',
-	redColor: 'red'
+	redColor: 'red',
+	green:'#34A853',
+	inventoryText: '#777777',
+	blueTheme:'#0E0E52',
+	darkGreen:'#285238'
 };

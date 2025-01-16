@@ -24,28 +24,62 @@ import { BASEURL } from '../constants/api';
 //         });
 // };
 export const LoginService = data => {
-    const url = `${BASEURL}auth/login`;
-    console.log('url', data)
-    return axios
-        .post(url, data)
-        .then(response => {
-            return response.data;
-        })
-        .catch(error => {
-            throw new Error(error);
-        });
+    console.log('Login data:', data);
+
+    // Simulate a successful response without making an API call
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                success: true, // Simulate success
+                message: 'Login successful',
+            });
+        }, 1000); // Simulate a delay
+    })
+    .catch(error => {
+        throw new Error('Login failed');
+    });
 };
+
 export const SignUpService = data => {
-    const url = `${BASEURL}auth/signup`;
-    return axios
-        .post(url, data)
-        .then(response => {
-            return response.data;
-        })
-        .catch(error => {
-            throw new Error(error);
-        });
+    console.log('SignUp data:', data);
+
+    // Simulate a successful response without making an API call
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve({
+                success: true, // Simulate success
+                message: 'Signup successful',
+            });
+        }, 1000); // Simulate a delay
+    })
+    .catch(error => {
+        throw new Error('Signup failed');
+    });
 };
+
+// export const LoginService = data => {
+//     const url = `${BASEURL}auth/login`;
+//     console.log('url', data)
+//     return axios
+//         .post(url, data)
+//         .then(response => {
+//             return response.data;
+//         })
+//         .catch(error => {
+//             throw new Error(error);
+//         });
+// };
+// export const SignUpService = data => {
+//     const url = `${BASEURL}auth/signup`;
+//     return axios
+//         .post(url, data)
+//         .then(response => {
+//             return response.data;
+//         })
+//         .catch(error => {
+//             throw new Error(error);
+//         });
+// };
 export const ForgotService = data => {
     const url = `${BASEURL}v1/users/forgotpassword`;
     return fetch(url, {

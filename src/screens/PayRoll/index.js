@@ -11,27 +11,20 @@ import {
 } from 'react-native';
 import * as customStyles from "../../utils/color";
 
-const InventoryScreen = () => {
+const PayRoll = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
-
-  // Sample data with different products and categories
   const data = [
-    { id: '01', product: 'Coca Cola 1 Litre', category: 'Drinks', price: '$10', stock: '11pcs' },
-    { id: '02', product: 'Pepsi 500ml', category: 'Drinks', price: '$5', stock: '20pcs' },
-    { id: '03', product: 'Apple iPhone 13', category: 'Electronics', price: '$999', stock: '5pcs' },
-    { id: '04', product: 'Samsung Galaxy S21', category: 'Electronics', price: '$850', stock: '8pcs' },
-    { id: '05', product: 'Nike Running Shoes', category: 'Footwear', price: '$120', stock: '15pcs' },
-    { id: '06', product: 'Adidas Sneakers', category: 'Footwear', price: '$110', stock: '10pcs' },
-    { id: '07', product: 'LG 55-inch TV', category: 'Electronics', price: '$600', stock: '7pcs' },
-    { id: '08', product: 'Sony Noise Cancelling Headphones', category: 'Electronics', price: '$250', stock: '12pcs' },
-    { id: '09', product: 'Bose Bluetooth Speaker', category: 'Electronics', price: '$150', stock: '18pcs' },
-    { id: '10', product: 'Apple MacBook Pro', category: 'Electronics', price: '$2000', stock: '3pcs' },
-    { id: '11', product: 'Dell Inspiron Laptop', category: 'Electronics', price: '$700', stock: '10pcs' },
-    { id: '12', product: 'Puma Sports T-shirt', category: 'Clothing', price: '$30', stock: '25pcs' },
-    { id: '13', product: 'Levi\'s Jeans', category: 'Clothing', price: '$60', stock: '18pcs' },
-    { id: '14', product: 'Samsung Galaxy Watch', category: 'Electronics', price: '$250', stock: '5pcs' },
-    { id: '15', product: 'Sony PlayStation 5', category: 'Electronics', price: '$499', stock: '10pcs' },
+    { name: 'Sean Palock', contact: '2445665656', email: 'Seanpol@gmail.com', gender: 'male', type: 'Part Time', department: 'IT' },
+    { name: 'Emily Carter', contact: '9876543210', email: 'emily.carter@example.com', gender: 'female', type: 'Full Time', department: 'HR' },
+    { name: 'John Doe', contact: '1234567890', email: 'john.doe@example.com', gender: 'male', type: 'Part Time', department: 'Finance' },
+    { name: 'Sophia Turner', contact: '5432167890', email: 'sophia.turner@example.com', gender: 'female', type: 'Full Time', department: 'Marketing' },
+    { name: 'Michael Brown', contact: '1122334455', email: 'michael.brown@example.com', gender: 'male', type: 'Part Time', department: 'IT' },
+    { name: 'Olivia Wilson', contact: '9988776655', email: 'olivia.wilson@example.com', gender: 'female', type: 'Full Time', department: 'Operations' },
+    { name: 'James Smith', contact: '6655443322', email: 'james.smith@example.com', gender: 'male', type: 'Part Time', department: 'Legal' },
+    { name: 'Ava Johnson', contact: '7788990011', email: 'ava.johnson@example.com', gender: 'female', type: 'Full Time', department: 'Design' },
+    { name: 'Liam Davis', contact: '5566778899', email: 'liam.davis@example.com', gender: 'male', type: 'Part Time', department: 'Development' },
+    { name: 'Charlotte Garcia', contact: '3344556677', email: 'charlotte.garcia@example.com', gender: 'female', type: 'Full Time', department: 'Customer Support' },
   ];
   const handleMenuPress = (item) => {
     setSelectedItem(item);
@@ -52,35 +45,40 @@ const InventoryScreen = () => {
     console.log('Update', selectedItem);
     closeMenu();
   };
+
   // Render the header
   const renderHeader = () => (
     <View style={styles.headerRow}>
       <Text style={[styles.cell, styles.headerText, styles.actionColumn]}>Action</Text>
-      <Text style={[styles.cell, styles.headerText, styles.idColumn]}>ID</Text>
-      <Text style={[styles.cell, styles.headerText, styles.productColumn]}>Product</Text>
-      <Text style={[styles.cell, styles.headerText, styles.categoryColumn]}>Category</Text>
-      <Text style={[styles.cell, styles.headerText, styles.priceColumn]}>Price</Text>
-      <Text style={[styles.cell, styles.headerText, styles.stockColumn]}>Stock</Text>
+      <Text style={[styles.cell, styles.headerText, styles.nameColumn]}>Name</Text>
+      <Text style={[styles.cell, styles.headerText, styles.contactColumn]}>Contact</Text>
+      <Text style={[styles.cell, styles.headerText, styles.emailColumn]}>Email</Text>
+      <Text style={[styles.cell, styles.headerText, styles.genderColumn]}>Gender</Text>
+      <Text style={[styles.cell, styles.headerText, styles.typeColumn]}>Employee Type</Text>
+      <Text style={[styles.cell, styles.headerText, styles.departmentColumn]}>Department</Text>
+
     </View>
   );
 
   // Render each row
   const renderItem = ({ item }) => (
     <View style={styles.row}>
-      <TouchableOpacity style={[styles.cell, styles.actionColumn]} onPress={() => handleMenuPress(item)}>
-        <Text style={styles.actionText}>•••</Text>
+      <TouchableOpacity style={[styles.menuButton, styles.cell, styles.actionColumn]} onPress={() => handleMenuPress(item)}>
+      <Text style={styles.menuText}>•••</Text>
       </TouchableOpacity>
-      <Text style={[styles.cell, styles.idColumn]}>{item.id}</Text>
-      <Text style={[styles.cell, styles.productColumn]}>{item.product}</Text>
-      <Text style={[styles.cell, styles.categoryColumn]}>{item.category}</Text>
-      <Text style={[styles.cell, styles.priceColumn]}>{item.price}</Text>
-      <Text style={[styles.cell, styles.stockColumn]}>{item.stock}</Text>
+      <Text style={[styles.cell, styles.nameColumn]}>{item.name}</Text>
+      <Text style={[styles.cell, styles.contactColumn]}>{item.contact}</Text>
+      <Text style={[styles.cell, styles.emailColumn]}>{item.email}</Text>
+      <Text style={[styles.cell, styles.genderColumn]}>{item.gender}</Text>
+      <Text style={[styles.cell, styles.typeColumn]}>{item.type}</Text>
+      <Text style={[styles.cell, styles.departmentColumn]}>{item.department}</Text>
+
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
+       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
           placeholder="Search"
@@ -89,6 +87,7 @@ const InventoryScreen = () => {
           <Text style={styles.iconText}>🔍</Text>
         </TouchableOpacity>
       </View>
+
       {/* Wrap the entire content in a horizontal ScrollView */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         {/* Wrap the FlatList and header to make the entire screen scroll horizontally */}
@@ -106,6 +105,7 @@ const InventoryScreen = () => {
       <TouchableOpacity style={styles.addButton}>
         <Text style={styles.addButtonText}>+</Text>
       </TouchableOpacity>
+      {/* Modal for menu */}
       {menuVisible && (
         <Modal transparent animationType="fade" visible={menuVisible}>
           <TouchableOpacity style={styles.modalOverlay} onPress={closeMenu}>
@@ -176,42 +176,51 @@ const styles = StyleSheet.create({
   cell: {
     paddingHorizontal: 8,
     fontSize: 16,
+    textAlign: 'center', // Ensures proper alignment
   },
   headerText: {
     fontWeight: 'bold',
     color: '#000',
   },
-  idColumn: {
-    width: 50, // Fixed width for ID column
-    textAlign: 'center',
+  menuButton: {
+    width: 50, // Adjust to fit the icon
+    alignItems: 'center',
+    justifyContent:'center'
   },
-  productColumn: {
-    width: 180, // Reduced width for Product column
-    textAlign: 'left',
-    flexWrap: 'wrap',  // Allow wrapping for long product names
-  },
-  categoryColumn: {
-    width: 120, // Fixed width for Category column
-    textAlign: 'left',
-  },
-  priceColumn: {
-    width: 80, // Fixed width for Price column
-    textAlign: 'center',
-  },
-  stockColumn: {
-    width: 90, // Fixed width for Stock column
-    textAlign: 'center',
-  },
-  actionColumn: {
-    width: 65, // Fixed width for Action column
-    textAlign: 'center',
-    justifyContent: 'center'
-  },
-  actionText: {
+  menuText: {
     fontSize: 10,
     color: '#555',
-    fontWeight: '900',
-    textAlign: 'center',
+    fontWeight:'900',
+    textAlign: 'center', // Align names to the left
+
+  },
+  actionColumn: {
+    width: 70,
+    textAlign: 'center', // Align names to the left
+  },
+  nameColumn: {
+    width: 120,
+    textAlign: 'center', // Align names to the left
+  },
+  contactColumn: {
+    width: 120,
+    textAlign: 'center', // Center-align contact
+  },
+  emailColumn: {
+    width: 200,
+    textAlign: 'center', // Align email to the left
+  },
+  genderColumn: {
+    width: 75,
+    textAlign: 'center', // Center-align gender
+  },
+  typeColumn: {
+    width: 140,
+    textAlign: 'center', // Center-align employee type
+  },
+  departmentColumn: {
+    width: 140,
+    textAlign: 'center', // Center-align department
   },
   addButton: {
     position: 'absolute',
@@ -225,7 +234,7 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontSize: 26,
-    fontWeight: '600'
+    fontWeight: '600',
   },
   scrollContainer: {
     flexDirection: 'column',
@@ -268,4 +277,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InventoryScreen;
+
+export default PayRoll;
