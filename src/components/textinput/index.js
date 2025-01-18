@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     inputContainer: {
         position: 'relative',
         width: '100%', // Ensure it takes up full width
-        marginTop: 20,
+        marginTop: 12,
     },
     input: {
         padding: 10,

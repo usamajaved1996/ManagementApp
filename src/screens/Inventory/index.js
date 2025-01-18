@@ -10,6 +10,10 @@ import {
   Modal,
 } from 'react-native';
 import * as customStyles from "../../utils/color";
+import AddInventoryModal from '../../components/Modals/addInventoryModal';
+import { FAB } from 'react-native-paper';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import OverviewModal from '../../components/Modals/overViewModal';
 
 const InventoryScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -33,6 +37,16 @@ const InventoryScreen = () => {
     { id: '14', product: 'Samsung Galaxy Watch', category: 'Electronics', price: '$250', stock: '5pcs' },
     { id: '15', product: 'Sony PlayStation 5', category: 'Electronics', price: '$499', stock: '10pcs' },
   ];
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [isOverViewModal, setOverViewModal] = useState(false);
+
+  const openModal = () => setModalVisible(true);
+
+  const closeModal = () => setModalVisible(false);
+
+  const openOverViewModal = () => setOverViewModal(true);
+  const closeOverViewModal = () => setOverViewModal(false);
+
   const handleMenuPress = (item) => {
     setSelectedItem(item);
     setMenuVisible(true);
@@ -103,9 +117,21 @@ const InventoryScreen = () => {
         </View>
       </ScrollView>
 
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>+</Text>
-      </TouchableOpacity>
+
+      <View style={styles.fabView}>
+        <TouchableOpacity style={[styles.fabButton, styles.firstFabButton]} onPress={openOverViewModal} activeOpacity={0.9}>
+          <Icon name="visibility" size={24} color="#fff" />
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.fabButton, styles.secondFabButton]} onPress={openModal} activeOpacity={0.9}>
+          <Text style={styles.fabText}>+</Text>
+        </TouchableOpacity>
+      </View>
+
+
+
+      <AddInventoryModal visible={isModalVisible} onClose={closeModal} />
+      <OverviewModal visible={isOverViewModal} onClose={closeOverViewModal} />
+
       {menuVisible && (
         <Modal transparent animationType="fade" visible={menuVisible}>
           <TouchableOpacity style={styles.modalOverlay} onPress={closeMenu}>
@@ -213,20 +239,35 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textAlign: 'center',
   },
-  addButton: {
+  fabView: {
+    flexDirection: 'row',
     position: 'absolute',
     bottom: 16,
     right: 16,
+    borderRadius: 12,
+    overflow: 'hidden', // Ensures buttons appear joined
+  },
+  fabButton: {
     backgroundColor: customStyles.Colors.darkGreen,
-    borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  addButtonText: {
+  firstFabButton: {
+    borderTopLeftRadius: 12,
+    borderBottomLeftRadius: 12,
+  },
+  secondFabButton: {
+    borderTopRightRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  fabText: {
     color: '#fff',
     fontSize: 26,
-    fontWeight: '600'
+    fontWeight: '600',
   },
+
   scrollContainer: {
     flexDirection: 'column',
     flexWrap: 'nowrap',

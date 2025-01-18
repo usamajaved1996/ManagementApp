@@ -7,6 +7,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { saveUser } from './src/slices/authSlice';
 import { StatusBar } from 'react-native'; // Import StatusBar
+import Toast from 'react-native-toast-message';
+import { toastConfig } from './src/components/Toast/index';
 
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
@@ -75,6 +77,7 @@ const App = () => {
         ) : (
           <AuthNavigator />
         )}
+                <Toast config={toastConfig} />
       </NavigationContainer>
     </>
   );

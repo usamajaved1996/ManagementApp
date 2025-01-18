@@ -18,10 +18,17 @@ import ReportImg from '../assets/images/reportImg.png';
 import GrowthImg from '../assets/images/growthImg.png';
 import InventoryImg from '../assets/images/inventoryImg.png';
 import PayRollImg from '../assets/images/payrollImg.png';
-import PayRoll from '../screens/PayRoll';
+import PayRollTabs from '../screens/PayRollTabs';
 import { DrawerActions } from '@react-navigation/native';
 import ProfileScreen from '../screens/Profile';
 import Notifications from '../screens/Notification';
+import AddInventory from '../screens/AddInventory';
+import Scanner from '../screens/Scanner';
+import Employee from '../screens/PayRollSection/employee';
+import Deduction from '../screens/PayRollSection/deduction';
+import Payroll from '../screens/PayRollSection/payroll';
+import PayrollDeduction from '../screens/PayrollDeduction';
+import AddEmployee from '../screens/AddEmployee';
 
 
 const Stack = createNativeStackNavigator();
@@ -65,10 +72,10 @@ const CustomDrawerContent = ({ props, onLogout }) => {
           />
         </DrawerContentScrollView>
 
-        <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 30 }} onPress={showLogoutModal}>
-          {/* <Image source={require('../assets/images/logout.png')} /> */}
+        {/* <TouchableOpacity style={{ flexDirection: 'row', marginLeft: 30 }} onPress={showLogoutModal}>
+          <Image source={require('../assets/images/logout.png')} />
           <Text style={{ color: 'white', padding: 2 }}> Log Out</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </ImageBackground>
   );
@@ -102,8 +109,8 @@ const AppDrawer = ({ onLogout }) => {
             <LinearGradient
               colors={['#2F5E41', '#2B2B95']} // Gradient colors
               style={{ flex: 1 }}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{ x: 1, y: 1 }}
+              end={{ x: 0, y: 1 }}
             />
           ),
           // headerBackground: () => (
@@ -148,8 +155,8 @@ const AppDrawer = ({ onLogout }) => {
             <LinearGradient
               colors={['#2F5E41', '#2B2B95']} // Gradient colors
               style={{ flex: 1 }}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{ x: 1, y: 1 }}
+              end={{ x: 0, y: 1 }}
             />
           ),
           headerLeft: () => (
@@ -187,8 +194,8 @@ const AppDrawer = ({ onLogout }) => {
             <LinearGradient
               colors={['#2F5E41', '#2B2B95']} // Gradient colors
               style={{ flex: 1 }}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{ x: 1, y: 1 }}
+              end={{ x: 0, y: 1 }}
             />
           ),
           headerLeft: () => (
@@ -204,7 +211,7 @@ const AppDrawer = ({ onLogout }) => {
           headerTitle: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
-              Revenue
+                Revenue
               </Text>
             </View>
           ),
@@ -225,8 +232,8 @@ const AppDrawer = ({ onLogout }) => {
             <LinearGradient
               colors={['#2F5E41', '#2B2B95']} // Gradient colors
               style={{ flex: 1 }}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{ x: 1, y: 1 }}
+              end={{ x: 0, y: 1 }}
             />
           ),
           headerLeft: () => (
@@ -242,7 +249,7 @@ const AppDrawer = ({ onLogout }) => {
           headerTitle: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
-              Growth
+                Growth
               </Text>
             </View>
           ),
@@ -263,8 +270,8 @@ const AppDrawer = ({ onLogout }) => {
             <LinearGradient
               colors={['#2F5E41', '#2B2B95']} // Gradient colors
               style={{ flex: 1 }}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{ x: 1, y: 1 }}
+              end={{ x: 0, y: 1 }}
             />
           ),
           headerLeft: () => (
@@ -280,7 +287,7 @@ const AppDrawer = ({ onLogout }) => {
           headerTitle: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
-              Report
+                Report
               </Text>
             </View>
           ),
@@ -294,15 +301,15 @@ const AppDrawer = ({ onLogout }) => {
       />
       <Drawer.Screen
         name="Payroll"
-        component={PayRoll}
+        component={PayRollTabs}
         options={({ navigation }) => ({
           headerTitleAlign: 'center',
           headerBackground: () => (
             <LinearGradient
               colors={['#2F5E41', '#2B2B95']} // Gradient colors
               style={{ flex: 1 }}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{ x: 1, y: 1 }}
+              end={{ x: 0, y: 1 }}
             />
           ),
           headerLeft: () => (
@@ -318,7 +325,7 @@ const AppDrawer = ({ onLogout }) => {
           headerTitle: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
-              PayRoll
+                PayRoll
               </Text>
             </View>
           ),
@@ -339,8 +346,8 @@ const AppDrawer = ({ onLogout }) => {
             <LinearGradient
               colors={['#2F5E41', '#2B2B95']} // Gradient colors
               style={{ flex: 1 }}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
+              start={{ x: 1, y: 1 }}
+              end={{ x: 0, y: 1 }}
             />
           ),
           headerLeft: () => (
@@ -356,7 +363,7 @@ const AppDrawer = ({ onLogout }) => {
           headerTitle: () => (
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={{ fontSize: 18, fontWeight: '600', color: '#fff' }}>
-              Settings
+                Settings
               </Text>
             </View>
           ),
@@ -380,6 +387,13 @@ const AppNavigator = ({ onLogout }) => {
       </Stack.Screen>
       <Stack.Screen name='Profile' component={ProfileScreen} options={{ headerShown: false }} />
       <Stack.Screen name='Notification' component={Notifications} options={{ headerShown: false }} />
+      <Stack.Screen name='AddInventory' component={AddInventory} options={{ headerShown: false }} />
+      <Stack.Screen name='AddEmployee' component={AddEmployee} options={{ headerShown: false }} />
+      <Stack.Screen name='Scanner' component={Scanner} options={{ headerShown: false }} />
+      <Stack.Screen name='Employee' component={Employee} options={{ headerShown: false }} />
+      <Stack.Screen name='Deduction' component={Deduction} options={{ headerShown: false }} />
+      <Stack.Screen name='Payroll' component={Payroll} options={{ headerShown: false }} />
+      <Stack.Screen name='PayrollDeduction' component={PayrollDeduction} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 };

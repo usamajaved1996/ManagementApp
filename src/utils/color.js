@@ -15,7 +15,7 @@ export const backgroundColors = {
 	white: "white",
 	primary1: "#285238",
 	primary2: "#212121",
-	bGColor:'#f7f7f7'
+	bGColor:'#F4F4FF'
 
 };
 export const Colors = {

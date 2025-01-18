@@ -13,7 +13,7 @@ export const toastMsg = (message, type = 'success') => {
 export const toastConfig = {
   custom: ({ text1, props }) => {
     // Set background color based on the message type
-    const backgroundColor = props.type === 'error' ? 'red' : 'green'; 
+    const backgroundColor = props.type === 'error' ? 'red' : '#285238'; 
     
     return (
       <View

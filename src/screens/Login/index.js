@@ -61,7 +61,7 @@ const Login = () => {
                 // await AsyncStorage.setItem('password', values.password);
                 try {
                     const response = await dispatch(login({ email: values.userName, password: values.password }));
-                    console.log('response', response)
+                    console.log('response on login screen', response)
                     if (response) {
                         toastMsg('Login successfull', 'success');
                     }

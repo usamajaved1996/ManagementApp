@@ -9,15 +9,13 @@ const Header = ({ headerText, onBackPress, backIcon }) => {
             <LinearGradient
                 colors={['#2F5E41', '#2B2B95']} // Gradient colors
                 style={styles.gradientBackground}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
+                start={{ x: 1, y: 1 }}
+                end={{ x: 0, y: 1 }}
             />
-
             {/* Back Icon */}
             <TouchableOpacity style={styles.backIconContainer} onPress={onBackPress}>
                 <Image source={backIcon} style={styles.backIcon} resizeMode="contain" />
             </TouchableOpacity>
-
             {/* Header Text */}
             <View style={styles.headerTextContainer}>
                 <Text style={styles.headerText}>{headerText}</Text>

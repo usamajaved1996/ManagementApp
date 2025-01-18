@@ -5,7 +5,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     Dimensions,
-    KeyboardAvoidingView,
+    ScrollView,
     Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -17,8 +17,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as customStyles from "../../utils/color";
 import * as Yup from 'yup';
 import Google from '../../assets/images/google.png';
-
-const { width } = Dimensions.get('window');
+import { signup } from '../../slices/authSlice';
+import { toastMsg } from '../../components/Toast';
+import { useDispatch } from 'react-redux';
 
 const validationSchema = Yup.object().shape({
     storeName: Yup.string()
@@ -36,8 +37,8 @@ const validationSchema = Yup.object().shape({
     password: Yup.string()
         .required('Password is required')
         .matches(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-            'Password must be at least 8 characters long and include one uppercase letter, one lowercase letter, one number, and one special character'
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/,
+            'Password must be at least 6 characters long and include one uppercase letter, one lowercase letter, one number, and one special character'
         ),
     confirmPassword: Yup.string()
         .required('Confirm Password is required')
@@ -48,6 +49,7 @@ const Signup = () => {
     const navigation = useNavigation();
     const [rememberMe, setRememberMe] = useState(false);
     const [savedCredentials, setSavedCredentials] = useState({ userName: '', password: '' });
+    const dispatch = useDispatch();
 
     useEffect(() => {
         // Load saved credentials from AsyncStorage
@@ -62,19 +64,31 @@ const Signup = () => {
         loadSavedCredentials();
     }, []);
 
-    const handleLogin = async (values, { setSubmitting }) => {
+    const handleSignUp = async (values, { setSubmitting }) => {
         try {
-            console.log('Login attempt', values);
+            console.log('SignUp attempt', values);
 
-            if (rememberMe) {
-                // Save credentials to AsyncStorage
-                await AsyncStorage.setItem('userName', values.email);
-                await AsyncStorage.setItem('password', values.password);
-            } else {
-                // Clear saved credentials if "Remember me" is unchecked
-                await AsyncStorage.removeItem('userName');
-                await AsyncStorage.removeItem('password');
-            }
+            // if (rememberMe) {
+            //     await AsyncStorage.setItem('userName', values.email);
+            //     await AsyncStorage.setItem('password', values.password);
+                try {
+                    const response = await dispatch(signup({ email: values.userName, password: values.password,firstName: values.firstName,lastName: values.lastName,phone: values.phone }));
+                    console.log('response', response)
+                    if (response) {
+                        toastMsg('Signup successfull', 'success');
+                    }
+
+                } catch (error) {
+                    console.error('SignUp error', error);
+                    toastMsg('Unexpected error occurred', 'error');
+                } finally {
+                    setSubmitting(false);
+                }
+            // } 
+            // else {
+            //     await AsyncStorage.removeItem('userName');
+            //     await AsyncStorage.removeItem('password');
+            // }
         } catch (error) {
             console.error('Login error', error);
         } finally {
@@ -83,8 +97,8 @@ const Signup = () => {
     };
 
     return (
-        <KeyboardAvoidingView style={styles.container} behavior="padding">
-            <Formik
+        <ScrollView contentContainerStyle={styles.container}>
+        <Formik
                 initialValues={{
                     storeName: '',
                     email: '',
@@ -93,7 +107,7 @@ const Signup = () => {
                     confirmPassword: '',
                 }}
                 validationSchema={validationSchema}
-                onSubmit={handleLogin}
+                onSubmit={handleSignUp}
             >
                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
                     <View style={styles.contentContainer}>
@@ -122,6 +136,7 @@ const Signup = () => {
                             value={values.phone}
                             onChangeText={handleChange('phone')}
                             onBlur={handleBlur('phone')}
+                            keyboardType="phone-pad" // Use keyboardType="phone-pad"
                             errorMessage={touched.phone && errors.phone ? errors.phone : ''}
                         />
                         <TextInput
@@ -141,7 +156,7 @@ const Signup = () => {
                             secureTextEntry
                             iconName="eye"
                             iconColor="#7E7E82"
-                            value={values.password}
+                            value={values.confirmPassword}
                             onChangeText={handleChange('confirmPassword')}
                             onBlur={handleBlur('confirmPassword')}
                             errorMessage={touched.confirmPassword && errors.confirmPassword ? errors.confirmPassword : ''}
@@ -185,18 +200,19 @@ const Signup = () => {
                     </View>
                 )}
             </Formik>
-        </KeyboardAvoidingView>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flexGrow: 1,
         backgroundColor: '#fff',
-        justifyContent: 'center',
     },
     contentContainer: {
         paddingHorizontal: 20,
+        marginTop:30
+
     },
     title: {
         fontSize: 19,

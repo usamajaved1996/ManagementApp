@@ -1,11 +1,18 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, TextInput, StyleSheet } from 'react-native';
+import Icon from "react-native-vector-icons/MaterialIcons"; // Import the icon library
 
 const Revenue = () => {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Revenue</Text>
-            <Text>Here, you can view detailed reports on stock, sales, and more.</Text>
+            <View style={styles.searchBarContainer}>
+                <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
+                <TextInput
+                    style={styles.searchBar}
+                    placeholder="Search"
+                    placeholderTextColor="#888"
+                />
+            </View>
         </View>
     );
 };
@@ -15,12 +22,28 @@ const styles = StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         backgroundColor: '#fff',
+        padding: 16
     },
-    title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        marginTop:40
+
+    searchBarContainer: {
+        flexDirection: "row",
+        alignItems: "center",
+        backgroundColor: "#FFFFFF",
+        borderRadius: 8,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: "#8D8D8DBD",
+        marginTop: 5
+    },
+    searchIcon: {
+        marginRight: 8,
+    },
+    searchBar: {
+        flex: 1,
+        fontSize: 16,
+        color: "#000000",
     },
 });
 
