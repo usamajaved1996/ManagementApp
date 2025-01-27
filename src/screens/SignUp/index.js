@@ -71,19 +71,19 @@ const Signup = () => {
             // if (rememberMe) {
             //     await AsyncStorage.setItem('userName', values.email);
             //     await AsyncStorage.setItem('password', values.password);
-                try {
-                    const response = await dispatch(signup({ email: values.userName, password: values.password,firstName: values.firstName,lastName: values.lastName,phone: values.phone }));
-                    console.log('response', response)
-                    if (response) {
-                        toastMsg('Signup successfull', 'success');
-                    }
-
-                } catch (error) {
-                    console.error('SignUp error', error);
-                    toastMsg('Unexpected error occurred', 'error');
-                } finally {
-                    setSubmitting(false);
+            try {
+                const response = await dispatch(signup({ email: values.userName, password: values.password, firstName: values.firstName, lastName: values.lastName, phone: values.phone }));
+                console.log('response', response)
+                if (response) {
+                    toastMsg('Signup successfull', 'success');
                 }
+
+            } catch (error) {
+                console.error('SignUp error', error);
+                toastMsg('Unexpected error occurred', 'error');
+            } finally {
+                setSubmitting(false);
+            }
             // } 
             // else {
             //     await AsyncStorage.removeItem('userName');
@@ -98,7 +98,7 @@ const Signup = () => {
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
-        <Formik
+            <Formik
                 initialValues={{
                     storeName: '',
                     email: '',
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         paddingHorizontal: 20,
-        marginTop:30
+        marginTop: Platform.OS == 'ios' ? 70 : 30
 
     },
     title: {

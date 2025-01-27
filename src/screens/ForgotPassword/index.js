@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useContext } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions, Platform } from 'react-native';
 import TextInput from '../../components/textinput/index'; // Import the reusable component
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
 import Button from '../../components/button/index'; // Import CustomButton component
@@ -7,6 +7,9 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Import Ionicons for ba
 import * as customStyles from "../../utils/color";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
+import { forgotPassword } from '../../slices/authSlice';
+import { useDispatch } from 'react-redux';
+import { toastMsg } from '../../components/Toast';
 
 const { width, height } = Dimensions.get('window');
 const validationSchema = Yup.object().shape({
@@ -20,11 +23,23 @@ const validationSchema = Yup.object().shape({
 });
 const ForgotPassword = () => {
     const navigation = useNavigation();
+    const dispatch = useDispatch();
 
     const handleForgot = async (values, { setSubmitting }) => {
-        navigation.navigate('ResetPassword')
-        console.log(values);
-        setSubmitting(false);
+        try {
+            const response = await dispatch(forgotPassword({ email: values.email }));
+            // console.log('response on forgot', response)
+            if (response) {
+                toastMsg('OTP code send in email', 'success');
+                navigation.navigate('ResetPassword', { email: values.email });
+            }
+        } catch (error) {
+            console.error('Forgot Password error', error);
+            toastMsg('Unexpected error occurred', 'error');
+        } finally {
+            setSubmitting(false);
+        }
+
     };
     return (
         <Formik
@@ -45,7 +60,7 @@ const ForgotPassword = () => {
                             Reset your password
                         </Text>
                         <Text style={styles.subTitle}>
-                        Please enter the email address you'd like your password reset information sent to.
+                            Please enter the email address you'd like your password reset information sent to.
                         </Text>
                         <View style={{ marginBottom: 35 }}>
                             <TextInput
@@ -78,7 +93,7 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         paddingHorizontal: 20,
-        marginTop:'40%'
+        marginTop: '40%'
 
     },
     title: {
@@ -95,7 +110,7 @@ const styles = StyleSheet.create({
     },
     header: {
         position: 'absolute',
-        top: 15, // Adjust the position
+        top: Platform.OS == 'ios' ? 50 : 15,
         left: 8,
         zIndex: 10, // Ensure the header is above the other content
     },

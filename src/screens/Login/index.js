@@ -57,21 +57,21 @@ const Login = () => {
     const handleLogin = async (values, { setSubmitting }) => {
         try {
             // if (rememberMe) {
-                // await AsyncStorage.setItem('userName', values.userName);
-                // await AsyncStorage.setItem('password', values.password);
-                try {
-                    const response = await dispatch(login({ email: values.userName, password: values.password }));
-                    console.log('response on login screen', response)
-                    if (response) {
-                        toastMsg('Login successfull', 'success');
-                    }
-
-                } catch (error) {
-                    console.error('Login error', error);
-                    toastMsg('Unexpected error occurred', 'error');
-                } finally {
-                    setSubmitting(false);
+            // await AsyncStorage.setItem('userName', values.userName);
+            // await AsyncStorage.setItem('password', values.password);
+            try {
+                const response = await dispatch(login({ email: values.userName, password: values.password }));
+                console.log('response on login screen', response)
+                if (response) {
+                    toastMsg('Login successfull', 'success');
                 }
+
+            } catch (error) {
+                console.error('Login error', error);
+                toastMsg('Unexpected error occurred', 'error');
+            } finally {
+                setSubmitting(false);
+            }
 
             // }
             //  else {
@@ -120,11 +120,12 @@ const Login = () => {
                         />
 
                         <View style={styles.linkContainer}>
-                            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                                <Text style={styles.linkText1}>Forgot my password</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigation.navigate('ChangePassword')}>
+
+                            {/* <TouchableOpacity onPress={() => navigation.navigate('ChangePassword')}>
                                 <Text style={styles.linkText2}>Change Password</Text>
+                            </TouchableOpacity> */}
+                            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                                <Text style={styles.linkText2}>Forgot my password</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
     },
     linkContainer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
         marginBottom: 35,
         marginTop: 10,
     },

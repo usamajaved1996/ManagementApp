@@ -1,7 +1,4 @@
-module.exports = {
-    project: {
-        ios: {},
-        android: {}
-    },
+  module.exports = {
     assets: ['./src/assets/images'],
   };
+  

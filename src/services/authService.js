@@ -35,9 +35,9 @@ export const LoginService = data => {
             });
         }, 1000); // Simulate a delay
     })
-    .catch(error => {
-        throw new Error('Login failed');
-    });
+        .catch(error => {
+            throw new Error('Login failed');
+        });
 };
 
 export const SignUpService = data => {
@@ -52,9 +52,9 @@ export const SignUpService = data => {
             });
         }, 1000); // Simulate a delay
     })
-    .catch(error => {
-        throw new Error('Signup failed');
-    });
+        .catch(error => {
+            throw new Error('Signup failed');
+        });
 };
 
 // export const LoginService = data => {
@@ -81,7 +81,51 @@ export const SignUpService = data => {
 //         });
 // };
 export const ForgotService = data => {
-    const url = `${BASEURL}v1/users/forgotpassword`;
+    const url = `${BASEURL}auth/forgotPassword`;
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.status);
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            return responseData;
+        })
+        .catch(error => {
+            throw new Error(error.message);
+        });
+};
+export const ResetPassword = data => {
+    const url = `${BASEURL}auth/resetPassword`;
+    return fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.status);
+            }
+            return response.json();
+        })
+        .then(responseData => {
+            return responseData;
+        })
+        .catch(error => {
+            throw new Error(error.message);
+        });
+};
+export const ResentConfirmationCode = data => {
+    const url = `${BASEURL}auth/resendConfirmationCode`;
     return fetch(url, {
         method: 'POST',
         headers: {

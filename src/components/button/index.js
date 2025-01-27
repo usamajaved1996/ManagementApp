@@ -25,9 +25,9 @@ const Button = ({ text, onPress, loading }) => {
 const styles = StyleSheet.create({
   button: {
     borderRadius: 8,
-    padding: 16,
     alignItems: 'center',
     height:56,
+    justifyContent:'center'
   },
   buttonText: {
     fontWeight: '600',

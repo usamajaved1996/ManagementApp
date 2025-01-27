@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 import {
     LoginService,
+    ResentConfirmationCode,
+    ResetPassword,
     SignUpService,
 
 } from '../services/authService';
@@ -14,19 +16,27 @@ const initialState = {
     error: null, // For handling errors
 };
 
-export const login = createAsyncThunk('/users/signin', async (data) => {
+export const login = createAsyncThunk('/auth/signin', async (data) => {
     const response = await LoginService(data);
     return response;
 });
 
-export const signup = createAsyncThunk('/users/signup', async (data) => {
+export const signup = createAsyncThunk('/auth/signup', async (data) => {
     const response = await SignUpService(data);
     return response;
 });
-// export const forgotPassword = createAsyncThunk('/users/forgotpassword', async (data) => {
-//     const response = await ForgotService(data);
-//     return response;
-// });
+export const forgotPassword = createAsyncThunk('/auth/forgotpassword', async (data) => {
+    const response = await ForgotService(data);
+    return response;
+});
+export const resetPassword = createAsyncThunk('/auth/forgotpassword', async (data) => {
+    const response = await ResetPassword(data);
+    return response;
+});
+export const resentCode = createAsyncThunk('/auth/resendConfirmationCode', async (data) => {
+    const response = await ResentConfirmationCode(data);
+    return response;
+});
 
 export const clearUser = createAsyncThunk('/auth/clearUser', async (_, { dispatch }) => {
     dispatch(authSlice.actions.clearUserData());
