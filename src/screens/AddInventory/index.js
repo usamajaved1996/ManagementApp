@@ -1,3 +1,5 @@
+// screens/AddInventory.js
+
 import React, { useState } from 'react';
 import {
     StyleSheet,
@@ -9,13 +11,15 @@ import {
     Platform,
     TextInput
 } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { addProduct } from '../../slices/inventorySlice'; // Import the action
 import CustomTextInput from '../../components/textinput/index'; // Adjust the path as needed
 import Header from '../../components/header';
 import HeaderImg from '../../assets/images/headerImg.png';
 import BackIcon from '../../assets/images/back.png';
 import * as customStyles from "../../utils/color";
 
-const AddInventory = ({navigation}) => {
+const AddInventory = ({ navigation }) => {
     const [form, setForm] = useState({
         productName: '',
         plu: '',
@@ -26,14 +30,25 @@ const AddInventory = ({navigation}) => {
         productDescription: '',
     });
 
+    const dispatch = useDispatch(); // Use dispatch hook
+
     const handleInputChange = (field, value) => {
         setForm({ ...form, [field]: value });
     };
+
     const handleBackPress = () => {
         navigation.goBack();
     };
+
     const handleSubmit = () => {
-        console.log('Form Submitted:', form);
+        dispatch(addProduct(form))
+            .then(() => {
+                console.log('Form Submitted:', form);
+                // Optionally navigate back or show a success message
+            })
+            .catch((error) => {
+                console.error('Error adding inventory:', error);
+            });
     };
 
     return (
@@ -98,11 +113,10 @@ const AddInventory = ({navigation}) => {
                         placeholder="Write something..."
                         placeholderTextColor={'black'}
                         multiline={true}
-                        style={styles.multilineInput} // Adjust height for multiline input
+                        style={styles.multilineInput}
                         value={form.productDescription}
                         onChangeText={(value) => handleInputChange('productDescription', value)}
                     />
-
 
                     <View style={{ height: 80 }} /> {/* Spacer to ensure button visibility */}
                 </ScrollView>
@@ -121,7 +135,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: 14,
-        paddingBottom: 20, // Extra padding at the bottom for smooth scrolling
+        paddingBottom: 20,
     },
     label: {
         marginTop: 20,
@@ -129,7 +143,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#333',
     },
-
     button: {
         backgroundColor: '#001f54',
         padding: 15,
@@ -152,9 +165,9 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         fontSize: 14,
         color: '#333',
-        height: 130, // Height for multiline input
-        textAlignVertical: 'top', // Ensures text starts at the top
-        marginTop:20
+        height: 130,
+        textAlignVertical: 'top',
+        marginTop: 20,
     },
 });
 

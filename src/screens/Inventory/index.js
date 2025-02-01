@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,16 +11,18 @@ import {
 } from 'react-native';
 import * as customStyles from "../../utils/color";
 import AddInventoryModal from '../../components/Modals/addInventoryModal';
-import { FAB } from 'react-native-paper';
+import { useDispatch, useSelector } from 'react-redux';
+import { getProducts } from '../../slices/inventorySlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import OverviewModal from '../../components/Modals/overViewModal';
 
 const InventoryScreen = () => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const dispatch = useDispatch();
+  const { items, loading } = useSelector((state) => state.inventory);
 
-  // Sample data with different products and categories
-  const data = [
+  const dummyData = [
     { id: '01', product: 'Coca Cola 1 Litre', category: 'Drinks', price: '$10', stock: '11pcs' },
     { id: '02', product: 'Pepsi 500ml', category: 'Drinks', price: '$5', stock: '20pcs' },
     { id: '03', product: 'Apple iPhone 13', category: 'Electronics', price: '$999', stock: '5pcs' },
@@ -37,15 +39,19 @@ const InventoryScreen = () => {
     { id: '14', product: 'Samsung Galaxy Watch', category: 'Electronics', price: '$250', stock: '5pcs' },
     { id: '15', product: 'Sony PlayStation 5', category: 'Electronics', price: '$499', stock: '10pcs' },
   ];
+
   const [isModalVisible, setModalVisible] = useState(false);
   const [isOverViewModal, setOverViewModal] = useState(false);
 
   const openModal = () => setModalVisible(true);
-
   const closeModal = () => setModalVisible(false);
 
   const openOverViewModal = () => setOverViewModal(true);
   const closeOverViewModal = () => setOverViewModal(false);
+
+  useEffect(() => {
+    dispatch(getProducts()); // Fetch data when screen loads
+  }, [dispatch]);
 
   const handleMenuPress = (item) => {
     setSelectedItem(item);
@@ -66,30 +72,35 @@ const InventoryScreen = () => {
     console.log('Update', selectedItem);
     closeMenu();
   };
+
   // Render the header
   const renderHeader = () => (
-    <View style={styles.headerRow}>
-      <Text style={[styles.cell, styles.headerText, styles.actionColumn]}>Action</Text>
-      <Text style={[styles.cell, styles.headerText, styles.idColumn]}>ID</Text>
-      <Text style={[styles.cell, styles.headerText, styles.productColumn]}>Product</Text>
-      <Text style={[styles.cell, styles.headerText, styles.categoryColumn]}>Category</Text>
-      <Text style={[styles.cell, styles.headerText, styles.priceColumn]}>Price</Text>
-      <Text style={[styles.cell, styles.headerText, styles.stockColumn]}>Stock</Text>
+    <View style={styles.table}>
+      <View style={styles.tableHeaderRow}>
+        <Text style={[styles.tableHeader, { width: 65 }]}>Action</Text>
+        <Text style={[styles.tableHeader, { width: 150 }]}>ID</Text>
+        <Text style={[styles.tableHeader, { width: 140 }]}>Product</Text>
+        <Text style={[styles.tableHeader, { width: 160 }]}>Category</Text>
+        <Text style={[styles.tableHeader, { width: 80 }]}>Price</Text>
+        <Text style={[styles.tableHeader, { width: 120 }]}>Stock</Text>
+      </View>
     </View>
   );
 
   // Render each row
   const renderItem = ({ item }) => (
-    <View style={styles.row}>
-      <TouchableOpacity style={[styles.cell, styles.actionColumn]} onPress={() => handleMenuPress(item)}>
-        <Text style={styles.actionText}>•••</Text>
+
+    <TouchableOpacity style={styles.tableRow} onPress={openModal}>
+      <TouchableOpacity style={[styles.menuButton, styles.cell, styles.actionColumn]} onPress={() => handleMenuPress(item)}>
+        <Text style={styles.menuText}>•••</Text>
       </TouchableOpacity>
-      <Text style={[styles.cell, styles.idColumn]}>{item.id}</Text>
-      <Text style={[styles.cell, styles.productColumn]}>{item.product}</Text>
-      <Text style={[styles.cell, styles.categoryColumn]}>{item.category}</Text>
-      <Text style={[styles.cell, styles.priceColumn]}>{item.price}</Text>
-      <Text style={[styles.cell, styles.stockColumn]}>{item.stock}</Text>
-    </View>
+      <Text style={[styles.tableData, { width: 150 }]}>{item.id}</Text>
+      <Text style={[styles.tableData, { width: 140 }]}>{item.product}</Text>
+      <Text style={[styles.tableData, { width: 160 }]}>{item.category}</Text>
+      <Text style={[styles.tableData, { width: 80 }]}>{item.price}</Text>
+      <Text style={[styles.tableData, { width: 120 }]}>{item.stock}</Text>
+
+    </TouchableOpacity>
   );
 
   return (
@@ -109,14 +120,13 @@ const InventoryScreen = () => {
         <View style={styles.scrollContainer}>
           {renderHeader()}
           <FlatList
-            data={data}
+            data={dummyData}  // Use dummyData if loading or no items
             renderItem={renderItem}
             keyExtractor={(item, index) => index.toString()}
             contentContainerStyle={{ paddingBottom: 80 }} // Adds padding at the bottom
           />
         </View>
       </ScrollView>
-
 
       <View style={styles.fabView}>
         <TouchableOpacity style={[styles.fabButton, styles.firstFabButton]} onPress={openOverViewModal} activeOpacity={0.9}>
@@ -126,8 +136,6 @@ const InventoryScreen = () => {
           <Text style={styles.fabText}>+</Text>
         </TouchableOpacity>
       </View>
-
-
 
       <AddInventoryModal visible={isModalVisible} onClose={closeModal} />
       <OverviewModal visible={isOverViewModal} onClose={closeOverViewModal} />
@@ -155,129 +163,97 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 8,
-    backgroundColor: '#fff',
+    backgroundColor: '#f4f4f4', // Background color for better contrast
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
+    color: '#333', // Title color for better visibility
   },
   searchContainer: {
     flexDirection: 'row',
     marginBottom: 16,
     alignItems: 'center',
-    position: 'relative', // To position the icon inside the input field
+    position: 'relative',
   },
   searchInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#ccc',
+    borderColor: '#ddd', // Light border for input
     borderRadius: 8,
-    paddingHorizontal: 40, // Added space for the icon inside the input
+    paddingHorizontal: 40,
     height: 48,
+    backgroundColor: '#fff', // White background for the search input
     color: '#4A5670'
   },
   iconButton: {
     position: 'absolute',
-    left: 10, // Position the icon inside the input at the start
+    left: 10,
     top: '45%',
-    transform: [{ translateY: -10 }], // Center the icon vertically
+    transform: [{ translateY: -10 }],
   },
   iconText: {
-    fontSize: 18,
+    fontSize: 14,
+    paddingTop: 4,
+    color: '#555' // Icon color to match the theme
   },
-  headerRow: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    backgroundColor: '#f7f7f7',
+  tableHeaderRow: {
+    flexDirection: "row",
+    backgroundColor: "#EDEDFE",
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: "#ccc",
   },
-  row: {
-    flexDirection: 'row',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  cell: {
-    paddingHorizontal: 8,
+  tableHeader: {
+    fontWeight: "bold",
     fontSize: 16,
+    color: "#000000",
+    textAlign: "center", // Center-align ext
+    paddingVertical: 8, // Add vertical padding
   },
-  headerText: {
-    fontWeight: 'bold',
-    color: '#000',
+  tableRow: {
+    flexDirection: "row",
+    alignItems: "center", // Align content vertically
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
   },
-  idColumn: {
-    width: 50, // Fixed width for ID column
-    textAlign: 'center',
+  tableData: {
+    fontSize: 16,
+    color: "#000000",
+    textAlign: "center", // Match alignment with header
+    paddingVertical: 8, // Add vertical padding
   },
-  productColumn: {
-    width: 180, // Reduced width for Product column
-    textAlign: 'left',
-    flexWrap: 'wrap',  // Allow wrapping for long product names
-  },
-  categoryColumn: {
-    width: 120, // Fixed width for Category column
-    textAlign: 'left',
-  },
-  priceColumn: {
-    width: 80, // Fixed width for Price column
-    textAlign: 'center',
-  },
-  stockColumn: {
-    width: 90, // Fixed width for Stock column
-    textAlign: 'center',
-  },
-  actionColumn: {
-    width: 65, // Fixed width for Action column
-    textAlign: 'center',
+
+  menuButton: {
+    width: 50, // Adjust to fit the icon
+    alignItems: 'center',
     justifyContent: 'center'
   },
-  actionText: {
+  menuText: {
     fontSize: 10,
     color: '#555',
     fontWeight: '900',
-    textAlign: 'center',
+    textAlign: 'center', // Align names to the left
   },
   fabView: {
     flexDirection: 'row',
     position: 'absolute',
     bottom: 16,
     right: 16,
-    borderRadius: 12,
-    overflow: 'hidden', // Ensures buttons appear joined
   },
   fabButton: {
     backgroundColor: customStyles.Colors.darkGreen,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  firstFabButton: {
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
-  },
-  secondFabButton: {
-    borderTopRightRadius: 12,
-    borderBottomRightRadius: 12,
+    borderRadius: 0,
+    padding: 14,
   },
   fabText: {
     color: '#fff',
-    fontSize: 26,
-    fontWeight: '600',
-  },
-
-  scrollContainer: {
-    flexDirection: 'column',
-    flexWrap: 'nowrap',
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 4
+    fontSize: 24,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -285,9 +261,9 @@ const styles = StyleSheet.create({
     width: 200,
     backgroundColor: '#fff',
     borderRadius: 12,
-    overflow: 'hidden', // Ensures rounded corners
-    elevation: 5, // Shadow for Android
-    shadowColor: '#000', // Shadow for iOS
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
@@ -308,5 +284,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
 });
+
 
 export default InventoryScreen;

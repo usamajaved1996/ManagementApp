@@ -1,43 +1,49 @@
 import React from "react";
-import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import LinearGradient from 'react-native-linear-gradient'; // Import LinearGradient
+import { View, Text, Image, TouchableOpacity, StyleSheet, Platform } from "react-native";
+import LinearGradient from 'react-native-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context'; // Import SafeAreaView
 
 const Header = ({ headerText, onBackPress, backIcon }) => {
     return (
-        <View style={styles.headerContainer}>
-            {/* Linear Gradient Background */}
-            <LinearGradient
-                colors={['#2F5E41', '#2B2B95']} // Gradient colors
-                style={styles.gradientBackground}
-                start={{ x: 1, y: 1 }}
-                end={{ x: 0, y: 1 }}
-            />
-            {/* Back Icon */}
-            <TouchableOpacity style={styles.backIconContainer} onPress={onBackPress}>
-                <Image source={backIcon} style={styles.backIcon} resizeMode="contain" />
-            </TouchableOpacity>
-            {/* Header Text */}
-            <View style={styles.headerTextContainer}>
-                <Text style={styles.headerText}>{headerText}</Text>
+        <SafeAreaView style={styles.safeArea}> 
+            <View style={styles.headerContainer}>
+                {/* Linear Gradient Background */}
+                <LinearGradient
+                    colors={['#2F5E41', '#2B2B95']} 
+                    style={styles.gradientBackground}
+                    start={{ x: 1, y: 1 }}
+                    end={{ x: 0, y: 1 }}
+                />
+                {/* Back Icon */}
+                <TouchableOpacity style={styles.backIconContainer} onPress={onBackPress}>
+                    <Image source={backIcon} style={styles.backIcon} resizeMode="contain" />
+                </TouchableOpacity>
+                {/* Header Text */}
+                <View style={styles.headerTextContainer}>
+                    <Text style={styles.headerText}>{headerText}</Text>
+                </View>
             </View>
-        </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
+    safeArea: {
+        backgroundColor: '#f9f9f9', 
+    },
     headerContainer: {
-        height: 60, // Adjust height as needed
+        height: Platform.OS === 'ios' ? 60 : 60, // Increase height for iOS
         justifyContent: "center",
         alignItems: "center",
         position: "relative",
     },
     gradientBackground: {
-        ...StyleSheet.absoluteFillObject, // Ensures the gradient covers the entire container
+        ...StyleSheet.absoluteFillObject,
     },
     backIconContainer: {
         position: "absolute",
         left: 16,
-        top: 20,
+        top: Platform.OS === 'ios' ? 20 : 20, // Adjust position for iOS
     },
     backIcon: {
         width: 13,
@@ -45,7 +51,7 @@ const styles = StyleSheet.create({
     },
     headerTextContainer: {
         position: 'absolute',
-        top: 16,
+        top: Platform.OS === 'ios' ? 16 : 16, // Adjust for iOS
         left: 0,
         right: 0,
         alignItems: 'center',
@@ -53,7 +59,7 @@ const styles = StyleSheet.create({
     headerText: {
         fontSize: 20,
         fontWeight: "700",
-        color: "#fff", // Ensure visibility against the gradient
+        color: "#fff",
         textAlign: "center",
     },
 });

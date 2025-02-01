@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     gradientBackground: {
-        padding: 20,
     },
     bottomModal: {
         backgroundColor: '#fff',
@@ -108,6 +107,7 @@ const styles = StyleSheet.create({
         fontSize: 22,
         fontWeight: '600',
         color: '#fff',
+        padding: 15
 
     },
     optionButton: {
@@ -142,14 +142,15 @@ const styles = StyleSheet.create({
 
     },
     closeButton: {
-        marginTop: 14,
+        marginTop: 8,
         marginHorizontal: 16,
         backgroundColor: '#fff',
         borderRadius: 5,
         paddingVertical: 16,
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: customStyles.Colors.blueTheme
+        borderColor: customStyles.Colors.blueTheme,
+        marginBottom: 18
     },
     closeButtonText: {
         color: customStyles.Colors.blueTheme,

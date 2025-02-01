@@ -1,18 +1,9 @@
 import axios from 'axios';
 import { BASEURL } from '../constants/api';
 
-export const GetProducts = async (params) => {
-    const url = `${BASEURL}product/getProducts`;
-    try {
-        const response = await axios.get(url, { params });
-        return response.data;
-    } catch (error) {
-        throw new Error(error.response ? error.response.statusText : error.message);
-    }
-};
 
-export const AddProduct = async (data) => {
-    const url = `${BASEURL}product/create`;
+export const AddEmployee = async (data) => {
+    const url = `${BASEURL}payroll/createEmployee`;
     try {
         const response = await axios.post(url, data);
         return response.data;
@@ -21,8 +12,8 @@ export const AddProduct = async (data) => {
     }
 };
 
-export const GetProductsId = async (params) => {
-    const url = `${BASEURL}product/${id}`;
+export const GetEmployeeData = async (params) => {
+    const url = `${BASEURL}payroll/employees`;
     try {
         const response = await axios.get(url, { params });
         return response.data;
@@ -31,8 +22,28 @@ export const GetProductsId = async (params) => {
     }
 };
 
-export const UpdateProduct = async (id, updatePayrollDto) => {
-    const url = `${BASEURL}product/${id}`;
+export const GetEmployeeId = async (params) => {
+    const url = `${BASEURL}payroll/employee/${id}`;
+    try {
+        const response = await axios.get(url, { params });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response ? error.response.statusText : error.message);
+    }
+};
+
+export const GetPayrollList = async (params) => {
+    const url = `${BASEURL}payroll/payroll`;
+    try {
+        const response = await axios.get(url, { params });
+        return response.data;
+    } catch (error) {
+        throw new Error(error.response ? error.response.statusText : error.message);
+    }
+};
+
+export const UpdateEmployee = async (id, updatePayrollDto) => {
+    const url = `${BASEURL}payroll/employee/${id}`;
     try {
         const response = await axios.patch(url, updatePayrollDto);
         return response.data;
@@ -40,20 +51,11 @@ export const UpdateProduct = async (id, updatePayrollDto) => {
         throw new Error(error.response ? error.response.statusText : error.message);
     }
 };
-export const DeleteProduct = async (id) => {
-    const url = `${BASEURL}product/${id}`;
+
+export const DeleteEmployee = async (id) => {
+    const url = `${BASEURL}payroll/employee/${id}`;
     try {
         const response = await axios.delete(url);
-        return response.data;
-    } catch (error) {
-        throw new Error(error.response ? error.response.statusText : error.message);
-    }
-};
-
-export const ProductOverview = async (params) => {
-    const url = `${BASEURL}product/getProductsOverview`;
-    try {
-        const response = await axios.get(url, { params });
         return response.data;
     } catch (error) {
         throw new Error(error.response ? error.response.statusText : error.message);
