@@ -8,11 +8,19 @@ const initialState = {
     loading: false,
     error: null,
 };
-
-export const addProduct = createAsyncThunk('/product/addProduct', async (data) => {
-    const response = await AddProduct(data);
-    return response;
-});
+export const addProduct = createAsyncThunk(
+    '/product/addProduct',
+    async (data, { getState }) => {
+        const { user } = getState().auth;
+        const accessToken = user?.data?.access_token;
+        const response = await AddProduct(data, accessToken);
+        return response;
+    }
+);
+// export const addProduct = createAsyncThunk('/product/addProduct', async (data) => {
+//     const response = await AddProduct(data);
+//     return response;
+// });
 export const getProducts = createAsyncThunk('/product/getProduct', async (data) => {
     const response = await GetProducts(data);
     return response;
@@ -61,7 +69,18 @@ const inventorySlice = createSlice({
             .addCase(addProduct.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload; // Set error if the API call fails
-            });
+            })
+            .addCase(deleteProduct.pending, (state) => {
+                state.loading = true;
+              })
+              .addCase(deleteProduct.fulfilled, (state, action) => {
+                state.loading = false;
+                state.items = state.items.filter((item) => item.id !== action.payload);
+              })
+              .addCase(deleteProduct.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+              });
     },
 });
 

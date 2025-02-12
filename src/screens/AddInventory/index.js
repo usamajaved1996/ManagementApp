@@ -18,37 +18,44 @@ import Header from '../../components/header';
 import HeaderImg from '../../assets/images/headerImg.png';
 import BackIcon from '../../assets/images/back.png';
 import * as customStyles from "../../utils/color";
+import { toastMsg } from '../../components/Toast';
 
 const AddInventory = ({ navigation }) => {
     const [form, setForm] = useState({
         productName: '',
-        plu: '',
-        sku: '',
+        PLU: '',
+        SKU: '',
         category: '',
-        price: '',
-        quantity: '',
+        price: 0,
+        stock: 0,
         productDescription: '',
     });
 
     const dispatch = useDispatch(); // Use dispatch hook
 
     const handleInputChange = (field, value) => {
-        setForm({ ...form, [field]: value });
+        setForm(prevForm => ({
+            ...prevForm,
+            [field]: field === 'price' || field === 'stock' ? parseInt(value) || 0 : value
+        }));
     };
 
     const handleBackPress = () => {
         navigation.goBack();
     };
 
-    const handleSubmit = () => {
-        dispatch(addProduct(form))
-            .then(() => {
-                console.log('Form Submitted:', form);
-                // Optionally navigate back or show a success message
-            })
-            .catch((error) => {
-                console.error('Error adding inventory:', error);
-            });
+    const handleSubmit = async () => {
+        try {
+            const response = await dispatch(addProduct(form));
+            if (response) {
+                toastMsg('Inventory Added', 'success');
+                navigation.goBack();
+            }
+
+        } catch (error) {
+            console.error('Login error', error);
+            toastMsg('Unexpected error occurred', 'error');
+        } 
     };
 
     return (
@@ -57,7 +64,7 @@ const AddInventory = ({ navigation }) => {
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
             <Header
-                headerText="Inventory"
+                headerText="Add Inventory"
                 onBackPress={handleBackPress}
                 backIcon={BackIcon}
                 headerImg={HeaderImg}
@@ -74,15 +81,15 @@ const AddInventory = ({ navigation }) => {
                     <Text style={styles.label}>PLU</Text>
                     <CustomTextInput
                         placeholder="e.g., cap, belt..."
-                        value={form.plu}
-                        onChangeText={(value) => handleInputChange('plu', value)}
+                        value={form.PLU}
+                        onChangeText={(value) => handleInputChange('PLU', value)}
                     />
 
                     <Text style={styles.label}>SKU</Text>
                     <CustomTextInput
                         placeholder="e.g., cap, belt..."
-                        value={form.sku}
-                        onChangeText={(value) => handleInputChange('sku', value)}
+                        value={form.SKU}
+                        onChangeText={(value) => handleInputChange('SKU', value)}
                     />
 
                     <Text style={styles.label}>Category</Text>
@@ -104,8 +111,8 @@ const AddInventory = ({ navigation }) => {
                     <CustomTextInput
                         placeholder="e.g., 1, 2, 3..."
                         keyboardType="numeric"
-                        value={form.quantity}
-                        onChangeText={(value) => handleInputChange('quantity', value)}
+                        value={form.stock}
+                        onChangeText={(value) => handleInputChange('stock', value)}
                     />
 
                     <Text style={styles.label}>Product Description</Text>

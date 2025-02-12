@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     StyleSheet,
     View,
@@ -6,20 +6,20 @@ import {
     TouchableOpacity,
     ScrollView,
     KeyboardAvoidingView,
-    Platform,
-    TextInput
+    Platform
 } from 'react-native';
-import CustomTextInput from '../../components/textinput/index'; // Adjust the path as needed
+import CustomTextInput from '../../components/textinput/index';
 import Header from '../../components/header';
 import HeaderImg from '../../assets/images/headerImg.png';
 import BackIcon from '../../assets/images/back.png';
 import * as customStyles from "../../utils/color";
-import { addEmployee } from '../../slices/payRollSlice';
+import { updateEmployee, getEmployeeById } from '../../slices/payRollSlice';
 import { toastMsg } from '../../components/Toast';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
-const AddEmployee = ({ navigation }) => {
-    const dispatch = useDispatch(); // Use dispatch hook
+const EditEmployee = ({ navigation, route }) => {
+    const dispatch = useDispatch();
+    const { employeeId } = route.params;
 
     const [form, setForm] = useState({
         firstName: '',
@@ -32,28 +32,51 @@ const AddEmployee = ({ navigation }) => {
         address: '',
     });
 
+    useEffect(() => {
+        const fetchEmployee = async () => {
+            const response = await dispatch(getEmployeeById(employeeId));
+            if (response?.payload) {
+                const data = response.payload;
+                setForm({
+                    firstName: data.name.split(' ')[0] || '',
+                    lastName: data.name.split(' ')[1] || '',
+                    gender: data.gender,
+                    email: data.email,
+                    contact: data.contact,
+                    employeeType: data.employeeType,
+                    department: data.department,
+                    address: data.address,
+                });
+            }
+        };
+        fetchEmployee();
+    }, [dispatch, employeeId]);
+
     const handleInputChange = (field, value) => {
         setForm({ ...form, [field]: value });
     };
+
     const handleBackPress = () => {
         navigation.goBack();
     };
-    const handleSubmit = async () => {
+
+    const handleUpdate = async () => {
         try {
             const payload = {
                 ...form,
-                name: `${form.firstName} ${form.lastName}`.trim(), // Merging first and last name
+                id: employeeId ,
+                name: `${form.firstName} ${form.lastName}`.trim(),
             };
             delete payload.firstName;
             delete payload.lastName;
 
-            const response = await dispatch(addEmployee(payload));
+            const response = await dispatch(updateEmployee( payload ));
             if (response) {
-                toastMsg('Employee Added', 'success');
+                toastMsg('Employee Updated Successfully', 'success');
                 navigation.goBack();
             }
         } catch (error) {
-            console.error('Error adding employee', error);
+            console.error('Error updating employee', error);
             toastMsg('Unexpected error occurred', 'error');
         }
     };
@@ -64,7 +87,7 @@ const AddEmployee = ({ navigation }) => {
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
             <Header
-                headerText="Add New Employee"
+                headerText="Edit Employee"
                 onBackPress={handleBackPress}
                 backIcon={BackIcon}
                 headerImg={HeaderImg}
@@ -73,59 +96,47 @@ const AddEmployee = ({ navigation }) => {
                 <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
                     <Text style={styles.label}>First Name</Text>
                     <CustomTextInput
-                        placeholder="John"
                         value={form.firstName}
                         onChangeText={(value) => handleInputChange('firstName', value)}
                     />
                     <Text style={styles.label}>Last Name</Text>
                     <CustomTextInput
-                        placeholder="Michael"
                         value={form.lastName}
                         onChangeText={(value) => handleInputChange('lastName', value)}
                     />
                     <Text style={styles.label}>Gender</Text>
                     <CustomTextInput
-                        placeholder="Male"
                         value={form.gender}
                         onChangeText={(value) => handleInputChange('gender', value)}
                     />
-
                     <Text style={styles.label}>Email</Text>
                     <CustomTextInput
-                        placeholder="Email Address"
                         value={form.email}
                         onChangeText={(value) => handleInputChange('email', value)}
                     />
-
                     <Text style={styles.label}>Contact</Text>
                     <CustomTextInput
-                        placeholder="2341342612"
                         value={form.contact}
                         onChangeText={(value) => handleInputChange('contact', value)}
                     />
-
                     <Text style={styles.label}>Employee Type</Text>
                     <CustomTextInput
-                        placeholder="Permanent"
                         value={form.employeeType}
                         onChangeText={(value) => handleInputChange('employeeType', value)}
                     />
-
                     <Text style={styles.label}>Department</Text>
                     <CustomTextInput
-                        placeholder="Finance"
                         value={form.department}
                         onChangeText={(value) => handleInputChange('department', value)}
                     />
                     <Text style={styles.label}>Residential Address</Text>
                     <CustomTextInput
-                        placeholder="Abc street"
                         value={form.address}
                         onChangeText={(value) => handleInputChange('address', value)}
                     />
                 </ScrollView>
-                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                    <Text style={styles.buttonText}>Add</Text>
+                <TouchableOpacity style={styles.button} onPress={handleUpdate}>
+                    <Text style={styles.buttonText}>Update</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
@@ -139,7 +150,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: 14,
-        paddingBottom: 20, // Extra padding at the bottom for smooth scrolling
+        paddingBottom: 20,
     },
     label: {
         marginTop: 20,
@@ -147,7 +158,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#333',
     },
-
     button: {
         backgroundColor: '#001f54',
         padding: 15,
@@ -160,20 +170,7 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
-    },
-    multilineInput: {
-        backgroundColor: customStyles.Colors.textInputBgColor,
-        borderRadius: 8,
-        borderWidth: 1,
-        borderColor: customStyles.Colors.textInputBorder,
-        paddingHorizontal: 10,
-        paddingVertical: 10,
-        fontSize: 14,
-        color: '#333',
-        height: 130, // Height for multiline input
-        textAlignVertical: 'top', // Ensures text starts at the top
-        marginTop: 20
-    },
+    }
 });
 
-export default AddEmployee;
+export default EditEmployee;

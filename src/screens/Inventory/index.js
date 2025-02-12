@@ -8,38 +8,32 @@ import {
   StyleSheet,
   ScrollView,
   Modal,
+  RefreshControl,
+  ActivityIndicator
 } from 'react-native';
 import * as customStyles from "../../utils/color";
 import AddInventoryModal from '../../components/Modals/addInventoryModal';
 import { useDispatch, useSelector } from 'react-redux';
-import { getProducts } from '../../slices/inventorySlice';
+import { getProducts, deleteProduct } from '../../slices/inventorySlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import OverviewModal from '../../components/Modals/overViewModal';
+import { useIsFocused } from '@react-navigation/native';
+import { toastMsg } from '../../components/Toast';
 
-const InventoryScreen = () => {
+const InventoryScreen = ({navigation}) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
-  const { items, loading } = useSelector((state) => state.inventory);
-
-  const dummyData = [
-    { id: '01', product: 'Coca Cola 1 Litre', category: 'Drinks', price: '$10', stock: '11pcs' },
-    { id: '02', product: 'Pepsi 500ml', category: 'Drinks', price: '$5', stock: '20pcs' },
-    { id: '03', product: 'Apple iPhone 13', category: 'Electronics', price: '$999', stock: '5pcs' },
-    { id: '04', product: 'Samsung Galaxy S21', category: 'Electronics', price: '$850', stock: '8pcs' },
-    { id: '05', product: 'Nike Running Shoes', category: 'Footwear', price: '$120', stock: '15pcs' },
-    { id: '06', product: 'Adidas Sneakers', category: 'Footwear', price: '$110', stock: '10pcs' },
-    { id: '07', product: 'LG 55-inch TV', category: 'Electronics', price: '$600', stock: '7pcs' },
-    { id: '08', product: 'Sony Noise Cancelling Headphones', category: 'Electronics', price: '$250', stock: '12pcs' },
-    { id: '09', product: 'Bose Bluetooth Speaker', category: 'Electronics', price: '$150', stock: '18pcs' },
-    { id: '10', product: 'Apple MacBook Pro', category: 'Electronics', price: '$2000', stock: '3pcs' },
-    { id: '11', product: 'Dell Inspiron Laptop', category: 'Electronics', price: '$700', stock: '10pcs' },
-    { id: '12', product: 'Puma Sports T-shirt', category: 'Clothing', price: '$30', stock: '25pcs' },
-    { id: '13', product: 'Levi\'s Jeans', category: 'Clothing', price: '$60', stock: '18pcs' },
-    { id: '14', product: 'Samsung Galaxy Watch', category: 'Electronics', price: '$250', stock: '5pcs' },
-    { id: '15', product: 'Sony PlayStation 5', category: 'Electronics', price: '$499', stock: '10pcs' },
-  ];
-
+  const isFocused = useIsFocused();
+  const { items = [], loading } = useSelector((state) => state.inventory);
+  const [searchQuery, setSearchQuery] = useState("");
+  
+  const filteredItems = items.filter(item =>
+    item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
   const [isModalVisible, setModalVisible] = useState(false);
   const [isOverViewModal, setOverViewModal] = useState(false);
 
@@ -50,8 +44,17 @@ const InventoryScreen = () => {
   const closeOverViewModal = () => setOverViewModal(false);
 
   useEffect(() => {
-    dispatch(getProducts()); // Fetch data when screen loads
-  }, [dispatch]);
+    if (isFocused) {
+      dispatch(getProducts()); // Fetch data when screen is focused
+    }
+  }, [dispatch, isFocused]);
+
+ 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await dispatch(getProducts());
+    setRefreshing(false);
+  };
 
   const handleMenuPress = (item) => {
     setSelectedItem(item);
@@ -63,22 +66,30 @@ const InventoryScreen = () => {
     setSelectedItem(null);
   };
 
-  const handleDelete = () => {
-    console.log('Delete', selectedItem);
+  const handleDelete = async () => {
+    if (!selectedItem) return;
+    try {
+      await dispatch(deleteProduct(selectedItem.id)).unwrap();
+      onRefresh();
+      toastMsg('Inventory Deleted', 'success');
+    } catch (error) {
+      console.error("Delete failed:", error);
+    }
     closeMenu();
   };
 
   const handleUpdate = () => {
     console.log('Update', selectedItem);
+    navigation.navigate('EditInventory', { productId: selectedItem.id });
     closeMenu();
-  };
+};
 
   // Render the header
   const renderHeader = () => (
     <View style={styles.table}>
       <View style={styles.tableHeaderRow}>
-        <Text style={[styles.tableHeader, { width: 65 }]}>Action</Text>
-        <Text style={[styles.tableHeader, { width: 150 }]}>ID</Text>
+        <Text style={[styles.tableHeader, { width: 60 }]}>Action</Text>
+        <Text style={[styles.tableHeader, { width: 140 }]}>ID</Text>
         <Text style={[styles.tableHeader, { width: 140 }]}>Product</Text>
         <Text style={[styles.tableHeader, { width: 160 }]}>Category</Text>
         <Text style={[styles.tableHeader, { width: 80 }]}>Price</Text>
@@ -90,26 +101,31 @@ const InventoryScreen = () => {
   // Render each row
   const renderItem = ({ item }) => (
 
-    <TouchableOpacity style={styles.tableRow} onPress={openModal}>
+    <View style={styles.tableRow} >
       <TouchableOpacity style={[styles.menuButton, styles.cell, styles.actionColumn]} onPress={() => handleMenuPress(item)}>
         <Text style={styles.menuText}>•••</Text>
       </TouchableOpacity>
       <Text style={[styles.tableData, { width: 150 }]}>{item.id}</Text>
-      <Text style={[styles.tableData, { width: 140 }]}>{item.product}</Text>
+      <Text style={[styles.tableData, { width: 140 }]}>{item.productName}</Text>
       <Text style={[styles.tableData, { width: 160 }]}>{item.category}</Text>
       <Text style={[styles.tableData, { width: 80 }]}>{item.price}</Text>
       <Text style={[styles.tableData, { width: 120 }]}>{item.stock}</Text>
 
-    </TouchableOpacity>
+    </View>
   );
 
   return (
     <View style={styles.container}>
+      {loading && <ActivityIndicator size="large" color={customStyles.Colors.darkGreen} style={styles.loader} />}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search"
+          placeholder="Search by Product or Category"
+          placeholderTextColor={'black'}
+          value={searchQuery}
+          onChangeText={(text) => setSearchQuery(text)}
         />
+
         <TouchableOpacity style={styles.iconButton}>
           <Text style={styles.iconText}>🔍</Text>
         </TouchableOpacity>
@@ -120,21 +136,24 @@ const InventoryScreen = () => {
         <View style={styles.scrollContainer}>
           {renderHeader()}
           <FlatList
-            data={dummyData}  // Use dummyData if loading or no items
+            data={filteredItems}
             renderItem={renderItem}
             keyExtractor={(item, index) => index.toString()}
             contentContainerStyle={{ paddingBottom: 80 }} // Adds padding at the bottom
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+
           />
         </View>
       </ScrollView>
-
       <View style={styles.fabView}>
-        <TouchableOpacity style={[styles.fabButton, styles.firstFabButton]} onPress={openOverViewModal} activeOpacity={0.9}>
-          <Icon name="visibility" size={24} color="#fff" />
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.fabButton, styles.secondFabButton]} onPress={openModal} activeOpacity={0.9}>
-          <Text style={styles.fabText}>+</Text>
-        </TouchableOpacity>
+        <View style={styles.fabButton} activeOpacity={0.9}>
+          <TouchableOpacity onPress={openOverViewModal} style={styles.iconWrapper}>
+            <Icon name="visibility" size={24} color="#fff" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={openModal} style={styles.iconWrapper}>
+            <Text style={styles.fabText}>+</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <AddInventoryModal visible={isModalVisible} onClose={closeModal} />
@@ -190,7 +209,7 @@ const styles = StyleSheet.create({
   iconButton: {
     position: 'absolute',
     left: 10,
-    top: '45%',
+    top: '39%',
     transform: [{ translateY: -10 }],
   },
   iconText: {
@@ -237,19 +256,27 @@ const styles = StyleSheet.create({
     textAlign: 'center', // Align names to the left
   },
   fabView: {
-    flexDirection: 'row',
     position: 'absolute',
     bottom: 16,
     right: 16,
   },
   fabButton: {
+    flexDirection: 'row', // Arrange icons horizontally
+    alignItems: 'center',
+    justifyContent: 'space-around',
     backgroundColor: customStyles.Colors.darkGreen,
-    borderRadius: 0,
-    padding: 14,
+    borderRadius: 12, // Fully rounded
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    elevation: 5,
+  },
+  iconWrapper: {
+    paddingHorizontal: 13, // Space between icons
   },
   fabText: {
     color: '#fff',
-    fontSize: 24,
+    fontSize: 28,
+    fontWeight: 'bold',
   },
   modalOverlay: {
     flex: 1,
@@ -282,6 +309,12 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#ccc',
     marginHorizontal: 16,
+  },
+  loader: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: [{ translateX: -25 }, { translateY: -25 }],
   },
 });
 

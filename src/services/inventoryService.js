@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { BASEURL } from '../constants/api';
 
-export const GetProducts = async (params) => {
+export const GetProducts = async () => {
     const url = `${BASEURL}product/getProducts`;
     try {
-        const response = await axios.get(url, { params });
+        const response = await axios.get(url);
         return response.data;
     } catch (error) {
         throw new Error(error.response ? error.response.statusText : error.message);
@@ -14,25 +14,30 @@ export const GetProducts = async (params) => {
 export const AddProduct = async (data) => {
     const url = `${BASEURL}product/create`;
     try {
-        const response = await axios.post(url, data);
+        const response = await axios.post(
+            url,
+            data,
+        );
         return response.data;
     } catch (error) {
+        console.error('Error:', error);
         throw new Error(error.response ? error.response.statusText : error.message);
     }
 };
 
 export const GetProductsId = async (params) => {
-    const url = `${BASEURL}product/${id}`;
+    const url = `${BASEURL}product/getProducts/${params}`;
     try {
-        const response = await axios.get(url, { params });
+        const response = await axios.get(url);
         return response.data;
     } catch (error) {
         throw new Error(error.response ? error.response.statusText : error.message);
     }
 };
 
-export const UpdateProduct = async (id, updatePayrollDto) => {
-    const url = `${BASEURL}product/${id}`;
+export const UpdateProduct = async ( updatePayrollDto) => {
+    let id = updatePayrollDto.id
+    const url = `${BASEURL}product/getProducts/${id}`;
     try {
         const response = await axios.patch(url, updatePayrollDto);
         return response.data;
@@ -41,9 +46,8 @@ export const UpdateProduct = async (id, updatePayrollDto) => {
     }
 };
 export const DeleteProduct = async (id) => {
-    const url = `${BASEURL}product/${id}`;
     try {
-        const response = await axios.delete(url);
+        const response = await axios.delete(`${BASEURL}product/getProducts/${id}`);
         return response.data;
     } catch (error) {
         throw new Error(error.response ? error.response.statusText : error.message);

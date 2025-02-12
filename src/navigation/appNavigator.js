@@ -29,6 +29,8 @@ import Deduction from '../screens/PayRollSection/deduction';
 import Payroll from '../screens/PayRollSection/payroll';
 import PayrollDeduction from '../screens/PayrollDeduction';
 import AddEmployee from '../screens/AddEmployee';
+import EditEmployee from '../screens/EditEmployee';
+import EditInventory from '../screens/EditInventory';
 
 
 const Stack = createNativeStackNavigator();
@@ -388,7 +390,9 @@ const AppNavigator = ({ onLogout }) => {
       <Stack.Screen name='Profile' component={ProfileScreen} options={{ headerShown: false }} />
       <Stack.Screen name='Notification' component={Notifications} options={{ headerShown: false }} />
       <Stack.Screen name='AddInventory' component={AddInventory} options={{ headerShown: false }} />
+      <Stack.Screen name='EditInventory' component={EditInventory} options={{ headerShown: false }} />
       <Stack.Screen name='AddEmployee' component={AddEmployee} options={{ headerShown: false }} />
+      <Stack.Screen name='EditEmployee' component={EditEmployee} options={{ headerShown: false }} />
       <Stack.Screen name='Scanner' component={Scanner} options={{ headerShown: false }} />
       <Stack.Screen name='Employee' component={Employee} options={{ headerShown: false }} />
       <Stack.Screen name='Deduction' component={Deduction} options={{ headerShown: false }} />

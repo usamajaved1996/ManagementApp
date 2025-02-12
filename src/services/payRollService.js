@@ -12,10 +12,10 @@ export const AddEmployee = async (data) => {
     }
 };
 
-export const GetEmployeeData = async (params) => {
+export const GetEmployeeData = async () => {
     const url = `${BASEURL}payroll/employees`;
     try {
-        const response = await axios.get(url, { params });
+        const response = await axios.get(url);
         return response.data;
     } catch (error) {
         throw new Error(error.response ? error.response.statusText : error.message);
@@ -23,9 +23,9 @@ export const GetEmployeeData = async (params) => {
 };
 
 export const GetEmployeeId = async (params) => {
-    const url = `${BASEURL}payroll/employee/${id}`;
+    const url = `${BASEURL}payroll/employee/${params}`;
     try {
-        const response = await axios.get(url, { params });
+        const response = await axios.get(url);
         return response.data;
     } catch (error) {
         throw new Error(error.response ? error.response.statusText : error.message);
@@ -42,7 +42,8 @@ export const GetPayrollList = async (params) => {
     }
 };
 
-export const UpdateEmployee = async (id, updatePayrollDto) => {
+export const UpdateEmployee = async ( updatePayrollDto) => {
+    let id = updatePayrollDto.id;
     const url = `${BASEURL}payroll/employee/${id}`;
     try {
         const response = await axios.patch(url, updatePayrollDto);

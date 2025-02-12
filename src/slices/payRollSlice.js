@@ -4,9 +4,9 @@ import {
 } from '../services/payRollService';
 
 const initialState = {
-    user: null,
-    status: 'idle',
-    error: null, // For handling errors
+    employee: [],
+    loading: false,
+    error: null,
 };
 
 export const addEmployee = createAsyncThunk('/payroll/createEmployee', async (data) => {
@@ -29,7 +29,7 @@ export const updateEmployee = createAsyncThunk('/payroll/employee/Id', async (da
     const response = await UpdateEmployee(data);
     return response;
 });
-export const deleteProduct = createAsyncThunk('/payroll/employee/Id', async (data) => {
+export const deleteEmployee = createAsyncThunk('/payroll/employee/Id', async (data) => {
     const response = await DeleteEmployee(data);
     return response;
 });
@@ -41,7 +41,17 @@ export const payrollSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-      
+        .addCase(getEmployee.pending, (state) => {
+            state.loading = true;
+        })
+        .addCase(getEmployee.fulfilled, (state, action) => {
+            state.loading = false;
+            state.items = action.payload;
+        })
+        .addCase(getEmployee.rejected, (state, action) => {
+            state.loading = false;
+            state.error = action.error.message;
+        })
     },
 });
 

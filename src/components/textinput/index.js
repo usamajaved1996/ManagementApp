@@ -63,7 +63,8 @@ const styles = StyleSheet.create({
         height: 56, // Fixed height to prevent changes when error occurs
         width: '100%', // Ensure the input takes up 100% width
         fontSize: 15,
-        fontWeight: '400'
+        fontWeight: '400',
+        color:'black'
     },
     icon: {
         position: 'absolute',

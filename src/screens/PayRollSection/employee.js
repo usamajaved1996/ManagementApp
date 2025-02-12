@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -8,48 +8,73 @@ import {
     StyleSheet,
     ScrollView,
     Modal,
+    RefreshControl,
+    ActivityIndicator
 } from 'react-native';
 import * as customStyles from "../../utils/color";
 import Icon from "react-native-vector-icons/MaterialIcons"; // Import the icon library
 import EmployeeDetailModal from '../../components/Modals/employeeDetailModal';
+import { useDispatch, useSelector } from 'react-redux';
+import { getEmployee, deleteEmployee } from '../../slices/payRollSlice';
+import { useIsFocused } from '@react-navigation/native';
+import { toastMsg } from '../../components/Toast';
 
-const Employee = ({navigation}) => {
+const Employee = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const isFocused = useIsFocused();
+    const { items = [], loading } = useSelector((state) => state.payroll);
     const [menuVisible, setMenuVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [isModalVisible, setModalVisible] = useState(false);
-    const data = [
-        { name: 'Sean Palock', contact: '2445665656', email: 'Seanpol@gmail.com', gender: 'male', type: 'Part Time', department: 'IT' },
-        { name: 'Emily Carter', contact: '9876543210', email: 'emily.carter@example.com', gender: 'female', type: 'Full Time', department: 'HR' },
-        { name: 'John Doe', contact: '1234567890', email: 'john.doe@example.com', gender: 'male', type: 'Part Time', department: 'Finance' },
-        { name: 'Sophia Turner', contact: '5432167890', email: 'sophia.turner@example.com', gender: 'female', type: 'Full Time', department: 'Marketing' },
-        { name: 'Michael Brown', contact: '1122334455', email: 'michael.brown@example.com', gender: 'male', type: 'Part Time', department: 'IT' },
-        { name: 'Olivia Wilson', contact: '9988776655', email: 'olivia.wilson@example.com', gender: 'female', type: 'Full Time', department: 'Operations' },
-        { name: 'James Smith', contact: '6655443322', email: 'james.smith@example.com', gender: 'male', type: 'Part Time', department: 'Legal' },
-        { name: 'Ava Johnson', contact: '7788990011', email: 'ava.johnson@example.com', gender: 'female', type: 'Full Time', department: 'Design' },
-        { name: 'Liam Davis', contact: '5566778899', email: 'liam.davis@example.com', gender: 'male', type: 'Part Time', department: 'Development' },
-        { name: 'Charlotte Garcia', contact: '3344556677', email: 'charlotte.garcia@example.com', gender: 'female', type: 'Full Time', department: 'Customer Support' },
-    ];
+    const [refreshing, setRefreshing] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const filteredItems = items.filter(item =>
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.department.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    useEffect(() => {
+        if (isFocused) {
+            dispatch(getEmployee()); // Fetch data when screen is focused
+        }
+    }, [dispatch, isFocused]);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await dispatch(getEmployee());
+        setRefreshing(false);
+    };
+
     const handleMenuPress = (item) => {
         setSelectedItem(item);
         setMenuVisible(true);
     };
-
     const closeMenu = () => {
         setMenuVisible(false);
         setSelectedItem(null);
     };
+
     const openModal = () => setModalVisible(true);
 
     const closeModal = () => setModalVisible(false);
-    const handleDelete = () => {
-        console.log('Delete', selectedItem);
+
+    const handleDelete = async () => {
+        if (!selectedItem) return;
+        try {
+            await dispatch(deleteEmployee(selectedItem.id)).unwrap();
+            onRefresh();
+            toastMsg('Employee Data Deleted', 'success');
+        } catch (error) {
+            console.error("Delete failed:", error);
+        }
+        closeMenu();
+    };
+    const handleUpdate = () => {
+        console.log('Update', selectedItem);
+        navigation.navigate('EditEmployee', { employeeId: selectedItem.id });
         closeMenu();
     };
 
-    const handleUpdate = () => {
-        console.log('Update', selectedItem);
-        closeMenu();
-    };
+
     const renderRow = ({ item }) => (
         <TouchableOpacity style={styles.tableRow} onPress={openModal}>
             <TouchableOpacity style={[styles.menuButton, styles.cell, styles.actionColumn]} onPress={() => handleMenuPress(item)}>
@@ -59,19 +84,23 @@ const Employee = ({navigation}) => {
             <Text style={[styles.tableData, { width: 140 }]}>{item.contact}</Text>
             <Text style={[styles.tableData, { width: 160 }]}>{item.email}</Text>
             <Text style={[styles.tableData, { width: 80 }]}>{item.gender}</Text>
-            <Text style={[styles.tableData, { width: 120 }]}>{item.type}</Text>
+            <Text style={[styles.tableData, { width: 120 }]}>{item.employeeType}</Text>
             <Text style={[styles.tableData, { width: 120 }]}>{item.department}</Text>
 
         </TouchableOpacity>
     );
     return (
         <View style={styles.container}>
+            {loading && <ActivityIndicator size="large" color={customStyles.Colors.darkGreen} style={styles.loader} />}
+
             <View style={styles.searchBarContainer}>
                 <Icon name="search" size={20} color="#888" style={styles.searchIcon} />
                 <TextInput
                     style={styles.searchBar}
                     placeholder="Search"
                     placeholderTextColor="#888"
+                    value={searchQuery}
+                    onChangeText={(text) => setSearchQuery(text)}
                 />
             </View>
             <ScrollView
@@ -94,9 +123,11 @@ const Employee = ({navigation}) => {
 
                     {/* Table Content */}
                     <FlatList
-                        data={data}
+                        data={filteredItems}
                         renderItem={renderRow}
                         keyExtractor={(item, index) => index.toString()}
+                        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+
                     />
                 </View>
             </ScrollView>
@@ -252,6 +283,12 @@ const styles = StyleSheet.create({
         color: "#000000",
         textAlign: "center", // Match alignment with header
         paddingVertical: 8, // Add vertical padding
+    },
+    loader: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -25 }, { translateY: -25 }],
     },
 });
 
