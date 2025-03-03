@@ -11,6 +11,7 @@ import * as customStyles from "../../utils/color";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch } from 'react-redux';
 import { clearUser } from '../../slices/authSlice';
+import { navigate } from '../../navigation/navigationService';
 
 const Settings = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -20,14 +21,19 @@ const Settings = ({ navigation }) => {
     setModalVisible(false);
     console.log("Account deleted");
   };
-  const clearUserDataFromStorage = async () => {
+  const onLogout = async () => {
     try {
-      await AsyncStorage.removeItem('userData');
-      dispatch(clearUser());
+        await AsyncStorage.removeItem('userData');
+        dispatch(clearUser());
+
+        setTimeout(() => {
+            navigate('Login'); // Navigate after clearing user state
+        }, 100);
     } catch (error) {
-      console.error('Error clearing user data from AsyncStorage:', error);
+        console.error('Error clearing user data:', error);
     }
-  };
+};
+
   return (
     <View style={styles.container}>
       <View style={{ marginTop: 20 }} />
@@ -69,7 +75,7 @@ const Settings = ({ navigation }) => {
         <Text style={styles.text}>Delete Account</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={clearUserDataFromStorage}>
+      <TouchableOpacity style={styles.button} onPress={onLogout}>
         <Icon name="logout" size={24} color={customStyles.Colors.blueTheme} />
         <Text style={styles.text}>Logout</Text>
       </TouchableOpacity>

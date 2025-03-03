@@ -56,36 +56,28 @@ const Login = () => {
 
     const handleLogin = async (values, { setSubmitting }) => {
         try {
-            // if (rememberMe) {
-            // await AsyncStorage.setItem('userName', values.userName);
-            // await AsyncStorage.setItem('password', values.password);
-            try {
-                const response = await dispatch(login({ email: values.userName, password: values.password }));
-                console.log('response on login screen', response)
-                if (response) {
-                    toastMsg('Login successfull', 'success');
-                }
-
-            } catch (error) {
-                console.error('Login error', error);
-                toastMsg('Unexpected error occurred', 'error');
-            } finally {
-                setSubmitting(false);
+            if (rememberMe) {
+                await AsyncStorage.setItem('userName', values.userName);
+                await AsyncStorage.setItem('password', values.password);
+            } else {
+                await AsyncStorage.removeItem('userName');
+                await AsyncStorage.removeItem('password');
             }
-
-            // }
-            //  else {
-            //     // Clear saved credentials if "Remember me" is unchecked
-            //     await AsyncStorage.removeItem('userName');
-            //     await AsyncStorage.removeItem('password');
-            // }
+    
+            const response = await dispatch(login({ email: values.userName, password: values.password })).unwrap();
+            toastMsg(response?.data.message || 'Login successful', 'success');
+    
         } catch (error) {
-            console.error('Login error', error);
+            console.log('catch error:', error);
+            const errorMessage = typeof error === 'string' ? error : error?.message || 'Unexpected error occurred';
+            console.log('errorMessage error:', errorMessage);
+    
+            toastMsg(errorMessage, 'error');
         } finally {
             setSubmitting(false);
         }
     };
-
+    
     return (
         <KeyboardAvoidingView style={styles.container} behavior="padding">
             <Formik
@@ -96,7 +88,7 @@ const Login = () => {
                 {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
                     <View style={styles.contentContainer}>
                         <Text style={styles.title}>
-                            Welcome to <Text style={styles.highlight}>Name</Text> Inventory System.
+                            Welcome to <Text style={styles.highlight}>Innova</Text> Inventory System
                         </Text>
 
                         <TextInput
@@ -180,7 +172,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     title: {
-        fontSize: 19,
+        fontSize: 18,
         fontWeight: '800',
         marginBottom: 10,
         color: '#000',

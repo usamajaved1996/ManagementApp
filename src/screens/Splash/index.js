@@ -12,7 +12,7 @@ const Splash = () => {
         >
         <View style={styles.textContainer}>
             <StatusBar backgroundColor="#2F5E41" barStyle="light-content" />
-            <Text style={styles.title}>INVENTORY MANAGEMENT</Text>
+            <Text style={styles.title}>INNOVA MANAGEMENT</Text>
         </View>
        </LinearGradient>
     );

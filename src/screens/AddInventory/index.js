@@ -1,6 +1,4 @@
-// screens/AddInventory.js
-
-import React, { useState } from 'react';
+import React from 'react';
 import {
     StyleSheet,
     View,
@@ -9,53 +7,34 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
+    ActivityIndicator,
     TextInput
 } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { addProduct } from '../../slices/inventorySlice'; // Import the action
-import CustomTextInput from '../../components/textinput/index'; // Adjust the path as needed
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import CustomTextInput from '../../components/textinput/index';
 import Header from '../../components/header';
 import HeaderImg from '../../assets/images/headerImg.png';
 import BackIcon from '../../assets/images/back.png';
-import * as customStyles from "../../utils/color";
+import { addProduct } from '../../slices/inventorySlice';
 import { toastMsg } from '../../components/Toast';
+import { useDispatch } from 'react-redux';
 
 const AddInventory = ({ navigation }) => {
-    const [form, setForm] = useState({
-        productName: '',
-        PLU: '',
-        SKU: '',
-        category: '',
-        price: 0,
-        stock: 0,
-        productDescription: '',
+    const dispatch = useDispatch();
+    
+    const validationSchema = Yup.object().shape({
+        productName: Yup.string().required('Product Name is required'),
+        PLU: Yup.string().required('PLU is required'),
+        SKU: Yup.string().required('SKU is required'),
+        category: Yup.string().required('Category is required'),
+        price: Yup.number().typeError('Price must be a number').required('Price is required'),
+        stock: Yup.number().typeError('Stock must be a number').required('Stock is required'),
+        productDescription: Yup.string().required('Product Description is required'),
     });
-
-    const dispatch = useDispatch(); // Use dispatch hook
-
-    const handleInputChange = (field, value) => {
-        setForm(prevForm => ({
-            ...prevForm,
-            [field]: field === 'price' || field === 'stock' ? parseInt(value) || 0 : value
-        }));
-    };
 
     const handleBackPress = () => {
         navigation.goBack();
-    };
-
-    const handleSubmit = async () => {
-        try {
-            const response = await dispatch(addProduct(form));
-            if (response) {
-                toastMsg('Inventory Added', 'success');
-                navigation.goBack();
-            }
-
-        } catch (error) {
-            console.error('Login error', error);
-            toastMsg('Unexpected error occurred', 'error');
-        } 
     };
 
     return (
@@ -70,66 +49,79 @@ const AddInventory = ({ navigation }) => {
                 headerImg={HeaderImg}
             />
             <View style={styles.container}>
-                <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-                    <Text style={styles.label}>Product Name</Text>
-                    <CustomTextInput
-                        placeholder="e.g., cap, belt..."
-                        value={form.productName}
-                        onChangeText={(value) => handleInputChange('productName', value)}
-                    />
-
-                    <Text style={styles.label}>PLU</Text>
-                    <CustomTextInput
-                        placeholder="e.g., cap, belt..."
-                        value={form.PLU}
-                        onChangeText={(value) => handleInputChange('PLU', value)}
-                    />
-
-                    <Text style={styles.label}>SKU</Text>
-                    <CustomTextInput
-                        placeholder="e.g., cap, belt..."
-                        value={form.SKU}
-                        onChangeText={(value) => handleInputChange('SKU', value)}
-                    />
-
-                    <Text style={styles.label}>Category</Text>
-                    <CustomTextInput
-                        placeholder="e.g., cap, belt..."
-                        value={form.category}
-                        onChangeText={(value) => handleInputChange('category', value)}
-                    />
-
-                    <Text style={styles.label}>Price</Text>
-                    <CustomTextInput
-                        placeholder="e.g., 100, 200..."
-                        keyboardType="numeric"
-                        value={form.price}
-                        onChangeText={(value) => handleInputChange('price', value)}
-                    />
-
-                    <Text style={styles.label}>Quantity</Text>
-                    <CustomTextInput
-                        placeholder="e.g., 1, 2, 3..."
-                        keyboardType="numeric"
-                        value={form.stock}
-                        onChangeText={(value) => handleInputChange('stock', value)}
-                    />
-
-                    <Text style={styles.label}>Product Description</Text>
-                    <TextInput
-                        placeholder="Write something..."
-                        placeholderTextColor={'black'}
-                        multiline={true}
-                        style={styles.multilineInput}
-                        value={form.productDescription}
-                        onChangeText={(value) => handleInputChange('productDescription', value)}
-                    />
-
-                    <View style={{ height: 80 }} /> {/* Spacer to ensure button visibility */}
-                </ScrollView>
-                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                    <Text style={styles.buttonText}>Add</Text>
-                </TouchableOpacity>
+                <Formik
+                    initialValues={{
+                        productName: '',
+                        PLU: '',
+                        SKU: '',
+                        category: '',
+                        price: '',
+                        stock: '',
+                        productDescription: '',
+                    }}
+                    validationSchema={validationSchema}
+                    onSubmit={async (values, { setSubmitting }) => {
+                        try {
+                            const formattedValues = {
+                                ...values,
+                                price: Number(values.price),
+                                stock: Number(values.stock)
+                            };
+                            const response = await dispatch(addProduct(formattedValues)).unwrap();
+                            if (response) {
+                                toastMsg('Inventory Added', 'success');
+                                navigation.goBack();
+                            }
+                        } catch (error) {
+                            toastMsg('Unexpected error occurred', 'error');
+                        } finally {
+                            setSubmitting(false);
+                        }
+                    }}
+                >
+                    {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
+                        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+                            {Object.keys(values).map((key) => (
+                                <View key={key}>
+                                    <Text style={styles.label}>{key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}</Text>
+                                    {key === 'productDescription' ? (
+                                        <TextInput
+                                            placeholder="Enter product description"
+                                            value={values[key]}
+                                            onChangeText={handleChange(key)}
+                                            onBlur={handleBlur(key)}
+                                            style={styles.multilineInput}
+                                            multiline
+                                        />
+                                    ) : key === 'price' || key === 'stock' ? (
+                                        <CustomTextInput
+                                            placeholder={key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                                            value={values[key]}
+                                            onChangeText={handleChange(key)}
+                                            onBlur={handleBlur(key)}
+                                            keyboardType="numeric"
+                                        />
+                                    ) : (
+                                        <CustomTextInput
+                                            placeholder={key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')}
+                                            value={values[key]}
+                                            onChangeText={handleChange(key)}
+                                            onBlur={handleBlur(key)}
+                                        />
+                                    )}
+                                    {touched[key] && errors[key] && <Text style={styles.errorText}>{errors[key]}</Text>}
+                                </View>
+                            ))}
+                            <TouchableOpacity style={[styles.button, isSubmitting && styles.disabledButton]} onPress={handleSubmit} disabled={isSubmitting}>
+                                {isSubmitting ? (
+                                    <ActivityIndicator size="small" color="#fff" />
+                                ) : (
+                                    <Text style={styles.buttonText}>Add</Text>
+                                )}
+                            </TouchableOpacity>
+                        </ScrollView>
+                    )}
+                </Formik>
             </View>
         </KeyboardAvoidingView>
     );
@@ -150,13 +142,19 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#333',
     },
+    errorText: {
+        color: 'red',
+        fontSize: 12,
+        marginTop: 5,
+        marginLeft: 3,
+    },
     button: {
         backgroundColor: '#001f54',
         padding: 15,
         borderRadius: 8,
         alignItems: 'center',
-        marginHorizontal: 14,
         marginBottom: 20,
+        marginTop: 20,
     },
     buttonText: {
         color: '#fff',
@@ -164,17 +162,16 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     multilineInput: {
-        backgroundColor: customStyles.Colors.textInputBgColor,
-        borderRadius: 8,
+        backgroundColor: '#fff',
         borderWidth: 1,
-        borderColor: customStyles.Colors.textInputBorder,
-        paddingHorizontal: 10,
-        paddingVertical: 10,
+        borderColor: '#ccc',
+        borderRadius: 8,
+        padding: 10,
         fontSize: 14,
         color: '#333',
         height: 130,
         textAlignVertical: 'top',
-        marginTop: 20,
+        marginTop:12
     },
 });
 

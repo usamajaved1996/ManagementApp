@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, TextInput } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform, TextInput, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { getProductById, updateProduct } from '../../slices/inventorySlice'; // Import necessary actions
 import CustomTextInput from '../../components/textinput/index';
@@ -7,9 +7,11 @@ import Header from '../../components/header';
 import { toastMsg } from '../../components/Toast';
 import HeaderImg from '../../assets/images/headerImg.png';
 import BackIcon from '../../assets/images/back.png';
+import * as customStyles from "../../utils/color";
 
 const EditInventory = ({ navigation, route }) => {
     const { productId } = route.params; // Getting productId from params
+    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
 
     const [form, setForm] = useState({
@@ -26,6 +28,7 @@ const EditInventory = ({ navigation, route }) => {
         const fetchProduct = async () => {
             const response = await dispatch(getProductById(productId));
             if (response?.payload) {
+                console.log('response', response.payload)
                 const data = response.payload;
                 setForm({
                     productName: data.productName || '',
@@ -50,17 +53,21 @@ const EditInventory = ({ navigation, route }) => {
 
     const handleSubmit = async () => {
         try {
+            setLoading(true); // Show loader
             const updatedData = { ...form, id: productId };
-            const response = await dispatch(updateProduct(updatedData));
-            if (response?.payload) {
-                toastMsg('Product Updated Successfully', 'success');
-                navigation.goBack();
-            }
+            const response = await dispatch(updateProduct(updatedData)).unwrap();
+            console.log('response on update', response)
+            toastMsg(response?.data.message || 'Product Updated Successfully', 'success');
+            navigation.goBack();
+
         } catch (error) {
-            console.error('Update error', error);
-            toastMsg('Unexpected error occurred', 'error');
+            console.log('updateProduct error:', error);
+            toastMsg(error?.message || 'Unexpected error occurred', 'error');
+        } finally {
+            setLoading(false); // Hide loader
         }
     };
+
     const handleBackPress = () => {
         navigation.goBack();
     };
@@ -101,9 +108,14 @@ const EditInventory = ({ navigation, route }) => {
                         onChangeText={(value) => handleInputChange('productDescription', value)}
                     />
                 </ScrollView>
-                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                    <Text style={styles.buttonText}>Update</Text>
+                <TouchableOpacity style={styles.button} onPress={handleSubmit} disabled={loading}>
+                    {loading ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                        <Text style={styles.buttonText}>Update</Text>
+                    )}
                 </TouchableOpacity>
+
             </View>
         </KeyboardAvoidingView>
     );
@@ -138,10 +150,10 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     multilineInput: {
-        backgroundColor: '#f0f0f0',
+        backgroundColor: customStyles.Colors.textInputBgColor,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: customStyles.Colors.textInputBorder,
         paddingHorizontal: 10,
         paddingVertical: 10,
         fontSize: 14,

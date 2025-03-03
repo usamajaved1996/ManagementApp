@@ -22,21 +22,26 @@ import { toastMsg } from '../../components/Toast';
 const Employee = ({ navigation }) => {
     const dispatch = useDispatch();
     const isFocused = useIsFocused();
-    const { items = [], loading } = useSelector((state) => state.payroll);
+    const { items = [], loading } = useSelector((state) => state.payroll) || { items: [], loading: false };
+
     const [menuVisible, setMenuVisible] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [isModalVisible, setModalVisible] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
-    const filteredItems = items.filter(item =>
-        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.department.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+
+    const filteredItems = Array.isArray(items.data)
+    ? items.data.filter(item =>
+      item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.department?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    : [];
+
     useEffect(() => {
         if (isFocused) {
             dispatch(getEmployee()); // Fetch data when screen is focused
         }
-    }, [dispatch, isFocused]);
+    }, [isFocused]);
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -68,6 +73,7 @@ const Employee = ({ navigation }) => {
         }
         closeMenu();
     };
+    
     const handleUpdate = () => {
         console.log('Update', selectedItem);
         navigation.navigate('EditEmployee', { employeeId: selectedItem.id });

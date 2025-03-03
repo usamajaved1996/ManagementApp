@@ -7,11 +7,14 @@ export const GetProducts = async () => {
         const response = await axios.get(url);
         return response.data;
     } catch (error) {
+        console.log('error', error)
+
         throw new Error(error.response ? error.response.statusText : error.message);
     }
 };
 
 export const AddProduct = async (data) => {
+    console.log('data', data)
     const url = `${BASEURL}product/create`;
     try {
         const response = await axios.post(
@@ -29,30 +32,50 @@ export const GetProductsId = async (params) => {
     const url = `${BASEURL}product/getProducts/${params}`;
     try {
         const response = await axios.get(url);
-        return response.data;
+        return response.data.data;
     } catch (error) {
         throw new Error(error.response ? error.response.statusText : error.message);
     }
 };
 
-export const UpdateProduct = async ( updatePayrollDto) => {
-    let id = updatePayrollDto.id
-    const url = `${BASEURL}product/getProducts/${id}`;
-    try {
-        const response = await axios.patch(url, updatePayrollDto);
-        return response.data;
-    } catch (error) {
-        throw new Error(error.response ? error.response.statusText : error.message);
-    }
+
+export const UpdateProduct = (data) => {
+    let id = data.id;
+    console.warn('UpdateProduct', data, id);
+    
+    return axios
+        .patch(`${BASEURL}product/${id}`, data) // Removed the extra period before .then()
+        .then(response => response.data)
+        .catch(error => {
+            console.log('error', error.response);
+            if (error?.response?.data) {
+                const { status, error: message } = error.response.data;
+                console.warn('err', { status, message });
+                throw { status, message }; // Throwing an object with status & message
+            } else {
+                throw { status: 500, message: "Unexpected error occurred." };
+            }
+        });
 };
-export const DeleteProduct = async (id) => {
-    try {
-        const response = await axios.delete(`${BASEURL}product/getProducts/${id}`);
-        return response.data;
-    } catch (error) {
-        throw new Error(error.response ? error.response.statusText : error.message);
-    }
+
+export const DeleteProduct = (id) => {
+    console.warn('DeleteProduct', id,`${BASEURL}product/${id}`);
+
+    return axios
+        .delete(`${BASEURL}product/${id}`)
+        .then(response => response.data)
+        .catch(error => {
+            console.log('error', error.response);
+            if (error?.response?.data) {
+                const { status, error: message } = error.response.data;
+                console.warn('err', { status, message });
+                throw { status, message }; // Throwing an object with status & message
+            } else {
+                throw { status: 500, message: "Unexpected error occurred." };
+            }
+        });
 };
+
 
 export const ProductOverview = async (params) => {
     const url = `${BASEURL}product/getProductsOverview`;

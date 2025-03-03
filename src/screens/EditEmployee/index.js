@@ -6,7 +6,8 @@ import {
     TouchableOpacity,
     ScrollView,
     KeyboardAvoidingView,
-    Platform
+    Platform,
+    ActivityIndicator
 } from 'react-native';
 import CustomTextInput from '../../components/textinput/index';
 import Header from '../../components/header';
@@ -15,11 +16,18 @@ import BackIcon from '../../assets/images/back.png';
 import * as customStyles from "../../utils/color";
 import { updateEmployee, getEmployeeById } from '../../slices/payRollSlice';
 import { toastMsg } from '../../components/Toast';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 const EditEmployee = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const { employeeId } = route.params;
+    const [loading, setLoading] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [employeeTypeOptions] = useState([
+        { label: 'Permanent', value: 'PERMANENT' },
+        { label: 'Contractual', value: 'CONTRACTUAL' }
+    ]);
 
     const [form, setForm] = useState({
         firstName: '',
@@ -36,7 +44,7 @@ const EditEmployee = ({ navigation, route }) => {
         const fetchEmployee = async () => {
             const response = await dispatch(getEmployeeById(employeeId));
             if (response?.payload) {
-                const data = response.payload;
+                const data = response.payload.data;
                 setForm({
                     firstName: data.name.split(' ')[0] || '',
                     lastName: data.name.split(' ')[1] || '',
@@ -62,15 +70,16 @@ const EditEmployee = ({ navigation, route }) => {
 
     const handleUpdate = async () => {
         try {
+            setLoading(true); 
             const payload = {
                 ...form,
-                id: employeeId ,
+                id: employeeId,
                 name: `${form.firstName} ${form.lastName}`.trim(),
             };
             delete payload.firstName;
             delete payload.lastName;
 
-            const response = await dispatch(updateEmployee( payload ));
+            const response = await dispatch(updateEmployee(payload));
             if (response) {
                 toastMsg('Employee Updated Successfully', 'success');
                 navigation.goBack();
@@ -78,6 +87,8 @@ const EditEmployee = ({ navigation, route }) => {
         } catch (error) {
             console.error('Error updating employee', error);
             toastMsg('Unexpected error occurred', 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -119,11 +130,19 @@ const EditEmployee = ({ navigation, route }) => {
                         value={form.contact}
                         onChangeText={(value) => handleInputChange('contact', value)}
                     />
+
                     <Text style={styles.label}>Employee Type</Text>
-                    <CustomTextInput
+                    <DropDownPicker
+                        open={open}
                         value={form.employeeType}
-                        onChangeText={(value) => handleInputChange('employeeType', value)}
+                        items={employeeTypeOptions}
+                        setOpen={setOpen}
+                        setValue={(value) => handleInputChange('employeeType', value())}
+                        style={styles.dropdown}
+                        dropDownContainerStyle={styles.dropdownContainer}
+                        placeholder="Select Employee Type"
                     />
+
                     <Text style={styles.label}>Department</Text>
                     <CustomTextInput
                         value={form.department}
@@ -135,8 +154,12 @@ const EditEmployee = ({ navigation, route }) => {
                         onChangeText={(value) => handleInputChange('address', value)}
                     />
                 </ScrollView>
-                <TouchableOpacity style={styles.button} onPress={handleUpdate}>
-                    <Text style={styles.buttonText}>Update</Text>
+                <TouchableOpacity style={styles.button} onPress={handleUpdate} disabled={loading}>
+                    {loading ? (
+                        <ActivityIndicator size="small" color="#fff" />
+                    ) : (
+                        <Text style={styles.buttonText}>Update</Text>
+                    )}
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
@@ -170,7 +193,20 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: '600',
-    }
+    },
+    dropdown: {
+        borderColor: '#0000004D',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingHorizontal: 10,
+        backgroundColor: '#fff',
+        marginTop:12,
+        height:56
+    },
+    dropdownContainer: {
+        borderColor: '#0000004D',
+        borderWidth: 1,
+    },
 });
 
 export default EditEmployee;

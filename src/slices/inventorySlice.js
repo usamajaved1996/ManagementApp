@@ -70,17 +70,7 @@ const inventorySlice = createSlice({
                 state.loading = false;
                 state.error = action.payload; // Set error if the API call fails
             })
-            .addCase(deleteProduct.pending, (state) => {
-                state.loading = true;
-              })
-              .addCase(deleteProduct.fulfilled, (state, action) => {
-                state.loading = false;
-                state.items = state.items.filter((item) => item.id !== action.payload);
-              })
-              .addCase(deleteProduct.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-              });
+          
     },
 });
 

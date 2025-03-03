@@ -17,7 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as customStyles from "../../utils/color";
 import * as Yup from 'yup';
 import Google from '../../assets/images/google.png';
-import { signup } from '../../slices/authSlice';
+import { signup, resentCode } from '../../slices/authSlice';
 import { toastMsg } from '../../components/Toast';
 import { useDispatch } from 'react-redux';
 
@@ -67,30 +67,34 @@ const Signup = () => {
     const handleSignUp = async (values, { setSubmitting }) => {
         try {
             console.log('SignUp attempt', values);
-
-            // if (rememberMe) {
-            //     await AsyncStorage.setItem('userName', values.email);
-            //     await AsyncStorage.setItem('password', values.password);
-            try {
-                const response = await dispatch(signup({ email: values.userName, password: values.password, firstName: values.firstName, lastName: values.lastName, phone: values.phone }));
-                console.log('response', response)
-                if (response) {
-                    toastMsg('Signup successfull', 'success');
-                }
-
-            } catch (error) {
-                console.error('SignUp error', error);
-                toastMsg('Unexpected error occurred', 'error');
-            } finally {
-                setSubmitting(false);
+    
+            if (rememberMe) {
+                await AsyncStorage.setItem('userName', values.email);
+                await AsyncStorage.setItem('password', values.password);
+            } else {
+                await AsyncStorage.removeItem('userName');
+                await AsyncStorage.removeItem('password');
             }
-            // } 
-            // else {
-            //     await AsyncStorage.removeItem('userName');
-            //     await AsyncStorage.removeItem('password');
-            // }
+    
+            const response = await dispatch(signup({
+                email: values.email,
+                password: values.password,
+                firstName: values.storeName,
+                lastName: values.storeName,
+                phone: values.phone
+            })).unwrap();
+    
+            console.log('response?.message', response.data.message);
+    
+            // Success Toast
+            toastMsg(response?.data.message || 'Signup successful', 'success');
+            navigation.navigate('ConfirmEmail', { email: values.email });
         } catch (error) {
-            console.error('Login error', error);
+            console.log('catch error:', error);
+            const errorMessage = typeof error === 'string' ? error : error?.message || 'Unexpected error occurred';
+            console.log('errorMessage error:', errorMessage);
+    
+            toastMsg(errorMessage, 'error');
         } finally {
             setSubmitting(false);
         }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions, Platform } from 'react-native';
 import TextInput from '../../components/textinput/index'; // Import the reusable component
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation hook
@@ -7,30 +7,46 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Import Ionicons for ba
 import * as customStyles from "../../utils/color";
 import { Formik } from 'formik';
 import * as Yup from 'yup';
-import { forgotPassword } from '../../slices/authSlice';
 import { useDispatch } from 'react-redux';
 import { toastMsg } from '../../components/Toast';
+import { confirmEmail, resentCode } from '../../slices/authSlice';
 
 const { width, height } = Dimensions.get('window');
-const validationSchema = Yup.object().shape({
-    email: Yup.string()
-        .required('Invalid email')
-        .matches(
-            /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-            'Invalid email format'
-        )
-        .min(3, 'Username must be at least 3 characters long'),
-});
 
-const ForgotPassword = () => {
+const ConfirmEmail = ({ route }) => {
     const navigation = useNavigation();
     const dispatch = useDispatch();
+    const { email } = route.params; // Access the email parameter
 
-    const handleForgot = async (values, { setSubmitting }) => {
+    const [showResendText, setShowResendText] = useState(false); // State to control text visibility
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowResendText(true);
+        }, 9000); // 30 seconds delay
+
+        return () => clearTimeout(timer); // Cleanup timer when component unmounts
+    }, []);
+
+    const handleResendOTP = async () => {
         try {
-            const response = await dispatch(forgotPassword({ email: values.email })).unwrap();
-            toastMsg(response?.data.message || 'OTP code send in email', 'success');
-            navigation.navigate('ResetPassword', { email: values.email });
+            const response = await dispatch(resentCode({ email: email })).unwrap();
+            toastMsg(response?.data.message || 'OTP Resent Successfully', 'success');
+        } catch (error) {
+            console.log('catch error:', error);
+            const errorMessage = typeof error === 'string' ? error : error?.message || 'Unexpected error occurred';
+            console.log('errorMessage error:', errorMessage);
+            toastMsg(errorMessage, 'error');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleConfirm = async (values, { setSubmitting }) => {
+        try {
+            const response = await dispatch(confirmEmail({ email: email, code: values.code })).unwrap();
+            toastMsg(response?.data.message || 'Email confirm', 'success');
+            navigation.navigate('Login');
         } catch (error) {
             console.log('catch error:', error);
             const errorMessage = typeof error === 'string' ? error : error?.message || 'Unexpected error occurred';
@@ -42,9 +58,8 @@ const ForgotPassword = () => {
     };
     return (
         <Formik
-            initialValues={{ email: '' }}
-            validationSchema={validationSchema}
-            onSubmit={handleForgot}
+            initialValues={{ code: '' }}
+            onSubmit={handleConfirm}
         >
             {({ handleChange, handleBlur, handleSubmit, values, errors, touched, isSubmitting }) => (
                 <View style={styles.container}>
@@ -56,28 +71,33 @@ const ForgotPassword = () => {
 
                     <View style={styles.contentContainer}>
                         <Text style={styles.title}>
-                            Reset your password
+                            Enter OTP code
                         </Text>
                         <Text style={styles.subTitle}>
-                            Please enter the email address you'd like your password reset information sent to.
+                            Please enter the OTP code to confirm your account.
                         </Text>
                         <View style={{ marginBottom: 35 }}>
                             <TextInput
-                                value={values.email}
-                                onChangeText={handleChange('email')}
-                                onBlur={handleBlur('email')}
-                                errorMessage={touched.email && errors.email ? errors.email : ''}
-                                placeholder={'Email Address'}
+                                value={values.code}
+                                onChangeText={handleChange('code')}
+                                onBlur={handleBlur('code')}
+                                errorMessage={touched.code && errors.code ? errors.code : ''}
+                                placeholder={'OTP code'}
                                 placeholderColor={customStyles.Colors.placeHolderColor}
                             />
                         </View>
 
                         <Button
                             textColor="#fff"
-                            text={'Reset you password'}
+                            text={'Confirm'}
                             onPress={handleSubmit}
                             loading={isSubmitting}
                         />
+                        {showResendText && (
+                            <TouchableOpacity onPress={handleResendOTP}>
+                                <Text style={styles.resendText}>Resend OTP</Text>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 </View>
             )}
@@ -116,7 +136,14 @@ const styles = StyleSheet.create({
     backButton: {
         padding: 10,
     },
+    resendText: {
+        fontSize: 14,
+        color: customStyles.Colors.blueTheme,
+        textAlign: 'center',
+        marginTop: 16,
+        textDecorationLine: 'underline',
+    },
 });
 
 
-export default ForgotPassword;
+export default ConfirmEmail;

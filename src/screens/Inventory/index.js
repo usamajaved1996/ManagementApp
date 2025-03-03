@@ -20,20 +20,24 @@ import OverviewModal from '../../components/Modals/overViewModal';
 import { useIsFocused } from '@react-navigation/native';
 import { toastMsg } from '../../components/Toast';
 
-const InventoryScreen = ({navigation}) => {
+const InventoryScreen = ({ navigation }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
-  const { items = [], loading } = useSelector((state) => state.inventory);
+  const { items = [], loading } = useSelector((state) => state.inventory) || { items: [], loading: false };
+
   const [searchQuery, setSearchQuery] = useState("");
-  
-  const filteredItems = items.filter(item =>
-    item.productName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
+
+  const filteredItems = Array.isArray(items.data)
+    ? items.data.filter(item =>
+      item.productName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.category?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    : [];
+
+
   const [isModalVisible, setModalVisible] = useState(false);
   const [isOverViewModal, setOverViewModal] = useState(false);
 
@@ -45,11 +49,11 @@ const InventoryScreen = ({navigation}) => {
 
   useEffect(() => {
     if (isFocused) {
-      dispatch(getProducts()); // Fetch data when screen is focused
+      dispatch(getProducts());
     }
-  }, [dispatch, isFocused]);
+  }, [isFocused]);  // Removed dispatch from dependencies
 
- 
+
   const onRefresh = async () => {
     setRefreshing(true);
     await dispatch(getProducts());
@@ -69,27 +73,29 @@ const InventoryScreen = ({navigation}) => {
   const handleDelete = async () => {
     if (!selectedItem) return;
     try {
+      console.log('Update data', selectedItem.id);
       await dispatch(deleteProduct(selectedItem.id)).unwrap();
       onRefresh();
       toastMsg('Inventory Deleted', 'success');
     } catch (error) {
       console.error("Delete failed:", error);
+      toastMsg(error?.message || 'Unexpected error occurred', 'error');
     }
     closeMenu();
   };
 
   const handleUpdate = () => {
-    console.log('Update', selectedItem);
+    console.log('Update data', selectedItem.id);
     navigation.navigate('EditInventory', { productId: selectedItem.id });
     closeMenu();
-};
+  };
 
   // Render the header
   const renderHeader = () => (
     <View style={styles.table}>
       <View style={styles.tableHeaderRow}>
         <Text style={[styles.tableHeader, { width: 60 }]}>Action</Text>
-        <Text style={[styles.tableHeader, { width: 140 }]}>ID</Text>
+        <Text style={[styles.tableHeader, { width: 120 }]}>ID</Text>
         <Text style={[styles.tableHeader, { width: 140 }]}>Product</Text>
         <Text style={[styles.tableHeader, { width: 160 }]}>Category</Text>
         <Text style={[styles.tableHeader, { width: 80 }]}>Price</Text>
@@ -99,20 +105,21 @@ const InventoryScreen = ({navigation}) => {
   );
 
   // Render each row
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }) => {
+    return (
+      <View style={styles.tableRow}>
+        <TouchableOpacity style={[styles.menuButton, styles.cell, styles.actionColumn]} onPress={() => handleMenuPress(item)}>
+          <Text style={styles.menuText}>•••</Text>
+        </TouchableOpacity>
+        <Text style={[styles.tableData, { width: 140 }]}>{item.id}</Text>
+        <Text style={[styles.tableData, { width: 120 }]}>{item.productName}</Text>
+        <Text style={[styles.tableData, { width: 160 }]}>{item.category}</Text>
+        <Text style={[styles.tableData, { width: 95 }]}>{item.price}</Text>
+        <Text style={[styles.tableData, { width: 120 }]}>{item.stock}</Text>
+      </View>
+    );
+  };
 
-    <View style={styles.tableRow} >
-      <TouchableOpacity style={[styles.menuButton, styles.cell, styles.actionColumn]} onPress={() => handleMenuPress(item)}>
-        <Text style={styles.menuText}>•••</Text>
-      </TouchableOpacity>
-      <Text style={[styles.tableData, { width: 150 }]}>{item.id}</Text>
-      <Text style={[styles.tableData, { width: 140 }]}>{item.productName}</Text>
-      <Text style={[styles.tableData, { width: 160 }]}>{item.category}</Text>
-      <Text style={[styles.tableData, { width: 80 }]}>{item.price}</Text>
-      <Text style={[styles.tableData, { width: 120 }]}>{item.stock}</Text>
-
-    </View>
-  );
 
   return (
     <View style={styles.container}>
@@ -138,11 +145,11 @@ const InventoryScreen = ({navigation}) => {
           <FlatList
             data={filteredItems}
             renderItem={renderItem}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={{ paddingBottom: 80 }} // Adds padding at the bottom
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={{ paddingBottom: 80 }}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-
           />
+
         </View>
       </ScrollView>
       <View style={styles.fabView}>

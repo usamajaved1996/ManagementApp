@@ -1,85 +1,78 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import AuthNavigator from './src/navigation/authNavigator';
-import AppNavigator from './src/navigation/appNavigator';
-import SplashNavigator from './src/navigation/splashNavigator';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { saveUser } from './src/slices/authSlice';
-import { StatusBar } from 'react-native'; // Import StatusBar
+import { saveUser, clearUser } from './src/slices/authSlice';
+import { StatusBar, View } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { toastConfig } from './src/components/Toast/index';
+import { navigationRef } from './src/navigation/navigationService';
+import MainNavigator from './src/navigation/MainNavigator';
 
 const App = () => {
   const [showSplash, setShowSplash] = useState(true);
-  const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
 
-  useEffect(() => {
-    const splashTimeout = setTimeout(() => setShowSplash(false), 1500);
-    return () => clearTimeout(splashTimeout);
-  }, []);
-
-  const clearUserDataFromStorage = async () => {
+  // Clear user data from AsyncStorage
+  const clearUserDataFromStorage = useCallback(async () => {
     try {
       await AsyncStorage.removeItem('userData');
       dispatch(clearUser());
     } catch (error) {
       console.error('Error clearing user data from AsyncStorage:', error);
     }
-  };
+  }, [dispatch]);
 
-  // Save user data
-  const saveUserDataToStorage = async (userData) => {
+  // Save user data to AsyncStorage
+  const saveUserDataToStorage = useCallback(async (userData) => {
     try {
       const jsonUserData = JSON.stringify(userData);
       await AsyncStorage.setItem('userData', jsonUserData);
     } catch (error) {
       console.error('Error saving user data to AsyncStorage:', error);
     }
-  };
+  }, []);
 
-  // Save user data to storage when user state changes
+  // Save user data whenever it changes
   useEffect(() => {
     if (user) {
       saveUserDataToStorage(user);
     }
-  }, [user]);
+  }, [user, saveUserDataToStorage]);
 
-  // Load user data from AsyncStorage on app load
+  // Load user data on app startup
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const jsonUserData = await AsyncStorage.getItem('userData');
         if (jsonUserData) {
-          const userData = JSON.parse(jsonUserData);
-          dispatch(saveUser(userData));
+          try {
+            const userData = JSON.parse(jsonUserData);
+            dispatch(saveUser(userData));
+          } catch (parseError) {
+            console.error('Error parsing user data:', parseError);
+            await AsyncStorage.removeItem('userData'); // Remove corrupt data
+          }
         }
       } catch (error) {
         console.error('Error loading user data from AsyncStorage:', error);
+      } finally {
+        setShowSplash(false);
       }
     };
 
     fetchUserData();
-  }, []);
+  }, [dispatch]);
 
   return (
-    <>
-      <StatusBar
-        barStyle="dark-content" // Dark text for the white background
-        backgroundColor="#FFFFFF" // White background
-      />
-      <NavigationContainer>
-        {showSplash ? (
-          <SplashNavigator />
-        ) : user ? (
-          <AppNavigator onLogout={clearUserDataFromStorage} />
-        ) : (
-          <AuthNavigator />
-        )}
-                <Toast config={toastConfig} />
+    <View style={{ flex: 1 }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <NavigationContainer ref={navigationRef}>
+        <MainNavigator showSplash={showSplash} />
+        <Toast config={toastConfig} />
       </NavigationContainer>
-    </>
+    </View>
   );
 };
 

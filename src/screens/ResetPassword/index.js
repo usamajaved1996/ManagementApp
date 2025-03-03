@@ -29,21 +29,21 @@ const ResetPassword = ({ route }) => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowResendText(true);
-        }, 1000); // 30 seconds delay
+        }, 8000); // 30 seconds delay
 
         return () => clearTimeout(timer); // Cleanup timer when component unmounts
     }, []);
 
     const handleReset = async (values, { setSubmitting }) => {
         try {
-            const response = await dispatch(resetPassword({ email: email, password: values.password, code: values.code }));
-            if (response) {
-                toastMsg('Password Reset Successful', 'success');
-                navigation.navigate('Login');
-            }
+            const response = await dispatch(resetPassword({ email: email, password: values.password, code: values.code })).unwrap();
+            toastMsg(response?.data.message || 'Password Reset Successfull', 'success');
+            navigation.navigate('Login');
         } catch (error) {
-            console.error('Reset Password error', error);
-            toastMsg('Unexpected error occurred', 'error');
+            console.log('catch error:', error);
+            const errorMessage = typeof error === 'string' ? error : error?.message || 'Unexpected error occurred';
+            console.log('errorMessage error:', errorMessage);
+            toastMsg(errorMessage, 'error');
         } finally {
             setSubmitting(false);
         }
@@ -51,14 +51,16 @@ const ResetPassword = ({ route }) => {
 
     const handleResendOTP = async () => {
         try {
-            const response = await dispatch(resentCode({ email: email }));
+            const response = await dispatch(resentCode({ email: email })).unwrap();
             console.log('response', response)
-            if (response) {
-                toastMsg('OTP Resent Successfully', 'success');
-            }
+            toastMsg(response?.data.message || 'OTP Resent Successfully', 'success');
         } catch (error) {
-            console.error('Resend OTP error', error);
-            toastMsg('Unexpected error occurred', 'error');
+            console.log('catch error:', error);
+            const errorMessage = typeof error === 'string' ? error : error?.message || 'Unexpected error occurred';
+            console.log('errorMessage error:', errorMessage);
+            toastMsg(errorMessage, 'error');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -161,12 +163,7 @@ const styles = StyleSheet.create({
     backButton: {
         padding: 10,
     },
-    timerText: {
-        fontSize: 14,
-        color: '#7E7E82',
-        marginBottom: 20,
-        textAlign: 'center',
-    },
+
     resendText: {
         fontSize: 14,
         color: customStyles.Colors.blueTheme,
