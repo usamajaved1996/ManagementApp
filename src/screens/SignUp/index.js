@@ -55,6 +55,7 @@ const Signup = () => {
         // Load saved credentials from AsyncStorage
         const loadSavedCredentials = async () => {
             const storedUserName = await AsyncStorage.getItem('userName');
+            console.log('Stored Username:', storedUserName);
             const storedPassword = await AsyncStorage.getItem('password');
             if (storedUserName && storedPassword) {
                 setSavedCredentials({ userName: storedUserName, password: storedPassword });

@@ -63,7 +63,6 @@ const Login = () => {
                 await AsyncStorage.removeItem('userName');
                 await AsyncStorage.removeItem('password');
             }
-    
             const response = await dispatch(login({ email: values.userName, password: values.password })).unwrap();
             toastMsg(response?.data.message || 'Login successful', 'success');
     
