@@ -1,6 +1,6 @@
 
 // AWS
-export const BASEURL = 'http://ec2-3-87-73-195.compute-1.amazonaws.com:4000/';
+export const BASEURL = 'http://innova-backend-lb-dev-11265501.us-east-1.elb.amazonaws.com/';
 
 //LOCAL HOST
 // export const BASEURL = 'http://192.168.18.75:4000/';

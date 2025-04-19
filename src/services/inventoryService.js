@@ -86,3 +86,26 @@ export const ProductOverview = async (params) => {
         throw new Error(error.response ? error.response.statusText : error.message);
     }
 };
+
+export const UploadInventoryFile = async (formData) => {
+    const url = `${BASEURL}product/addInventoryFile`;
+    console.log('Uploading file to:', url);
+    console.log('FormData contents:', formData);
+    try {
+        const response = await axios.post(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        console.log('Upload response:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('Upload error details:', {
+            message: error.message,
+            response: error.response?.data,
+            status: error.response?.status,
+            headers: error.response?.headers
+        });
+        throw new Error(error.response ? error.response.data?.message || error.response.statusText : error.message);
+    }
+};

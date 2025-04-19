@@ -97,6 +97,11 @@ android {
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+            crunchPngs false
+            android.dexOptions.dexInProcess = true
+            android.dexOptions.preDexLibraries = false
         }
         release {
             // Caution! In production, you need to generate your own keystore file.
@@ -105,6 +110,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.debug
         }
+    }
+    
+    dexOptions {
+        jumboMode true
+        javaMaxHeapSize "4g"
+        preDexLibraries = false
+        dexInProcess = true
     }
 }
 

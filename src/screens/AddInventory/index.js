@@ -24,13 +24,13 @@ const AddInventory = ({ navigation }) => {
     const dispatch = useDispatch();
     
     const validationSchema = Yup.object().shape({
-        productName: Yup.string().required('Product Name is required'),
+        name: Yup.string().required('Product Name is required'),
         PLU: Yup.string().required('PLU is required'),
         SKU: Yup.string().required('SKU is required'),
         category: Yup.string().required('Category is required'),
         price: Yup.number().typeError('Price must be a number').required('Price is required'),
         stock: Yup.number().typeError('Stock must be a number').required('Stock is required'),
-        productDescription: Yup.string().required('Product Description is required'),
+        description: Yup.string().required('Product Description is required'),
     });
 
     const handleBackPress = () => {
@@ -51,13 +51,13 @@ const AddInventory = ({ navigation }) => {
             <View style={styles.container}>
                 <Formik
                     initialValues={{
-                        productName: '',
+                        name: '',
                         PLU: '',
                         SKU: '',
                         category: '',
                         price: '',
                         stock: '',
-                        productDescription: '',
+                        description: '',
                     }}
                     validationSchema={validationSchema}
                     onSubmit={async (values, { setSubmitting }) => {

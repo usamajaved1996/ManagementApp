@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, createAction } from '@reduxjs/toolkit';
 import {
-    AddProduct, DeleteProduct, GetProducts, GetProductsId, UpdateProduct, ProductOverview
+    AddProduct, DeleteProduct, GetProducts, GetProductsId, UpdateProduct, ProductOverview, UploadInventoryFile
 } from '../services/inventoryService';
 
 const initialState = {
@@ -41,6 +41,13 @@ export const productOverview = createAsyncThunk('/product/productOverView', asyn
     const response = await ProductOverview(data);
     return response;
 });
+export const uploadInventoryFile = createAsyncThunk(
+    'inventory/uploadFile',
+    async (formData) => {
+        const response = await UploadInventoryFile(formData);
+        return response;
+    }
+);
 const inventorySlice = createSlice({
     name: 'inventory',
     initialState,
@@ -70,7 +77,17 @@ const inventorySlice = createSlice({
                 state.loading = false;
                 state.error = action.payload; // Set error if the API call fails
             })
-          
+            .addCase(uploadInventoryFile.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(uploadInventoryFile.fulfilled, (state, action) => {
+                state.loading = false;
+                // You can update the inventory state here if needed
+            })
+            .addCase(uploadInventoryFile.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.error.message;
+            })
     },
 });
 

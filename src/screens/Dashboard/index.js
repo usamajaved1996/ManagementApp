@@ -19,7 +19,7 @@ import Layer from '../../assets/images/clockLayer.png';
 import Upload from '../../assets/images/upload.png';
 import Sparkle from '../../assets/images/sparkles.png';
 
-const Dashboard = () => {
+const Dashboard = ({ navigation }) => {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -73,7 +73,10 @@ const Dashboard = () => {
           <Text style={styles.cardSecondaryTitle}>Daily Profit</Text>
         </View>
 
-        <View style={styles.cardSecondary}>
+        <TouchableOpacity 
+          style={styles.cardSecondary}
+          onPress={() => navigation.navigate('Inventory', { showUploadModal: true })}
+        >
           <ImageBackground
             source={Layer}
             style={styles.roundImageContainer}
@@ -82,12 +85,11 @@ const Dashboard = () => {
             <Image source={Clock} style={styles.clockImage} resizeMode="contain" />
           </ImageBackground>
           <Text style={styles.cardSecondaryTitle}>Last Upload: Fri, 8 Dec 2024, 2:00am</Text>
-          <TouchableOpacity style={styles.uploadButton}>
+          <View style={styles.uploadButton}>
             <Text style={styles.uploadLink}>Upload Inventory</Text>
             <Image source={Upload} style={styles.uploadImage} resizeMode="contain" />
-          </TouchableOpacity>
-
-        </View>
+          </View>
+        </TouchableOpacity>
 
       </View>
     </ScrollView>

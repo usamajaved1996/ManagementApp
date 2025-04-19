@@ -9,21 +9,81 @@ import {
   ScrollView,
   Modal,
   RefreshControl,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert,
+  Platform,
+  PermissionsAndroid
 } from 'react-native';
 import * as customStyles from "../../utils/color";
 import AddInventoryModal from '../../components/Modals/addInventoryModal';
 import { useDispatch, useSelector } from 'react-redux';
-import { getProducts, deleteProduct } from '../../slices/inventorySlice';
+import { getProducts, deleteProduct, uploadInventoryFile } from '../../slices/inventorySlice';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import OverviewModal from '../../components/Modals/overViewModal';
 import { useIsFocused } from '@react-navigation/native';
 import { toastMsg } from '../../components/Toast';
+import DocumentPicker from 'react-native-document-picker';
 
-const InventoryScreen = ({ navigation }) => {
+const DocumentPickerModal = ({ visible, onClose, onFileSelect }) => {
+  const handleDocumentPick = async () => {
+    try {
+      const res = await DocumentPicker.pick({
+        type: [
+          DocumentPicker.types.plainText,
+          DocumentPicker.types.xls,
+          DocumentPicker.types.xlsx,
+        ],
+        allowMultiSelection: false,
+      });
+      if (res && res.length > 0) {
+        onFileSelect(res[0]);
+      }
+    } catch (err) {
+      if (!DocumentPicker.isCancel(err)) {
+        console.error('Document picker error:', err);
+        toastMsg('Failed to pick document', 'error');
+      }
+    }
+  };
+
+  if (!visible) return null;
+
+  return (
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <View style={styles.documentPickerModal}>
+        <View style={styles.documentPickerContent}>
+          <Text style={styles.documentPickerTitle}>Select File</Text>
+          
+          <TouchableOpacity 
+            style={styles.documentOption}
+            onPress={handleDocumentPick}
+          >
+            <Icon name="insert-drive-file" size={24} color="#333" />
+            <Text style={styles.documentOptionText}>Choose File</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            style={styles.closeDocumentPicker}
+            onPress={onClose}
+          >
+            <Text style={styles.closeDocumentPickerText}>Cancel</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
+const InventoryScreen = ({ navigation, route }) => {
   const [menuVisible, setMenuVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [showOptionsModal, setShowOptionsModal] = useState(false);
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
   const { items = [], loading } = useSelector((state) => state.inventory) || { items: [], loading: false };
@@ -40,6 +100,8 @@ const InventoryScreen = ({ navigation }) => {
 
   const [isModalVisible, setModalVisible] = useState(false);
   const [isOverViewModal, setOverViewModal] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [showDocumentPicker, setShowDocumentPicker] = useState(false);
 
   const openModal = () => setModalVisible(true);
   const closeModal = () => setModalVisible(false);
@@ -53,6 +115,14 @@ const InventoryScreen = ({ navigation }) => {
     }
   }, [isFocused]);  // Removed dispatch from dependencies
 
+  // Check if we should show the upload modal
+  useEffect(() => {
+    if (route.params?.showUploadModal) {
+      setShowOptionsModal(true);
+      // Clear the parameter so it doesn't show again
+      navigation.setParams({ showUploadModal: undefined });
+    }
+  }, [route.params?.showUploadModal]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -90,6 +160,45 @@ const InventoryScreen = ({ navigation }) => {
     closeMenu();
   };
 
+  const closeOptionsModal = () => {
+    setShowOptionsModal(false);
+  };
+
+  const handleFileSelect = async (file) => {
+    try {
+      console.log('Selected file:', file);
+      
+      const fileExtension = file.name?.split('.').pop().toLowerCase();
+      console.log('File extension:', fileExtension);
+      
+      if (!['xls', 'xlsx'].includes(fileExtension)) {
+        console.log('Invalid file type:', fileExtension);
+        toastMsg('Please select only Excel files (.xls or .xlsx)', 'error');
+        return;
+      }
+
+      setIsUploading(true);
+      const formData = new FormData();
+      formData.append('file', {
+        uri: file.uri,
+        type: file.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        name: file.name,
+      });
+
+      console.log('Prepared formData:', formData);
+      await dispatch(uploadInventoryFile(formData)).unwrap();
+      console.log('File upload successful');
+      toastMsg('File uploaded successfully', 'success');
+      dispatch(getProducts());
+    } catch (err) {
+      console.error('Upload error:', err);
+      toastMsg(err.message || 'Failed to upload file', 'error');
+    } finally {
+      setIsUploading(false);
+      setShowDocumentPicker(false);
+      closeOptionsModal();
+    }
+  };
   // Render the header
   const renderHeader = () => (
     <View style={styles.table}>
@@ -112,7 +221,7 @@ const InventoryScreen = ({ navigation }) => {
           <Text style={styles.menuText}>•••</Text>
         </TouchableOpacity>
         <Text style={[styles.tableData, { width: 140 }]}>{item.id}</Text>
-        <Text style={[styles.tableData, { width: 120 }]}>{item.productName}</Text>
+        <Text style={[styles.tableData, { width: 120 }]}>{item.name}</Text>
         <Text style={[styles.tableData, { width: 160 }]}>{item.category}</Text>
         <Text style={[styles.tableData, { width: 95 }]}>{item.price}</Text>
         <Text style={[styles.tableData, { width: 120 }]}>{item.stock}</Text>
@@ -157,6 +266,9 @@ const InventoryScreen = ({ navigation }) => {
           <TouchableOpacity onPress={openOverViewModal} style={styles.iconWrapper}>
             <Icon name="visibility" size={24} color="#fff" />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => setShowOptionsModal(true)} style={styles.iconWrapper}>
+            <Icon name="file-upload" size={24} color="#fff" />
+          </TouchableOpacity>
           <TouchableOpacity onPress={openModal} style={styles.iconWrapper}>
             <Text style={styles.fabText}>+</Text>
           </TouchableOpacity>
@@ -181,6 +293,42 @@ const InventoryScreen = ({ navigation }) => {
           </TouchableOpacity>
         </Modal>
       )}
+
+      {/* Options Modal */}
+      <Modal
+        visible={showOptionsModal}
+        transparent={true}
+        animationType="fade"
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.optionsModal}>
+            <Text style={styles.modalTitle}>Inventory Options</Text>
+            <TouchableOpacity
+              style={[styles.modalButton, styles.removeButton]}
+              onPress={() => setShowDocumentPicker(true)}
+              disabled={isUploading}
+            >
+              {isUploading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.modalButtonText}>Upload Inventory File</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={closeOptionsModal}
+            >
+              <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <DocumentPickerModal
+        visible={showDocumentPicker}
+        onClose={() => setShowDocumentPicker(false)}
+        onFileSelect={handleFileSelect}
+      />
     </View>
   );
 };
@@ -268,17 +416,17 @@ const styles = StyleSheet.create({
     right: 16,
   },
   fabButton: {
-    flexDirection: 'row', // Arrange icons horizontally
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
     backgroundColor: customStyles.Colors.darkGreen,
-    borderRadius: 12, // Fully rounded
+    borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 20,
     elevation: 5,
   },
   iconWrapper: {
-    paddingHorizontal: 13, // Space between icons
+    paddingHorizontal: 13,
   },
   fabText: {
     color: '#fff',
@@ -322,6 +470,83 @@ const styles = StyleSheet.create({
     top: '50%',
     left: '50%',
     transform: [{ translateX: -25 }, { translateY: -25 }],
+  },
+  optionsModal: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#333',
+  },
+  modalButton: {
+    backgroundColor: customStyles.Colors.darkGreen,
+    padding: 15,
+    borderRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  removeButton: {
+    backgroundColor: '#FF4444',
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  closeButton: {
+    marginTop: 10,
+    padding: 10,
+  },
+  closeButtonText: {
+    color: '#666',
+    fontSize: 14,
+  },
+  documentPickerModal: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  documentPickerContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    paddingBottom: 40,
+  },
+  documentPickerTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  documentOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  documentOptionText: {
+    marginLeft: 15,
+    fontSize: 16,
+    color: '#333',
+  },
+  closeDocumentPicker: {
+    marginTop: 20,
+    padding: 15,
+    alignItems: 'center',
+  },
+  closeDocumentPickerText: {
+    color: '#FF4444',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
