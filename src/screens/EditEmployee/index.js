@@ -35,7 +35,7 @@ const EditEmployee = ({ navigation, route }) => {
         gender: '',
         email: '',
         contact: '',
-        employeeType: '',
+        type: '',
         department: '',
         address: '',
     });
@@ -51,7 +51,7 @@ const EditEmployee = ({ navigation, route }) => {
                     gender: data.gender,
                     email: data.email,
                     contact: data.contact,
-                    employeeType: data.employeeType,
+                    type: data.type,
                     department: data.department,
                     address: data.address,
                 });
@@ -134,10 +134,10 @@ const EditEmployee = ({ navigation, route }) => {
                     <Text style={styles.label}>Employee Type</Text>
                     <DropDownPicker
                         open={open}
-                        value={form.employeeType}
+                        value={form.type}
                         items={employeeTypeOptions}
                         setOpen={setOpen}
-                        setValue={(value) => handleInputChange('employeeType', value())}
+                        setValue={(value) => handleInputChange('type', value())}
                         style={styles.dropdown}
                         dropDownContainerStyle={styles.dropdownContainer}
                         placeholder="Select Employee Type"

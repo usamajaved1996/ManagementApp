@@ -34,7 +34,7 @@ const AddEmployee = ({ navigation }) => {
         gender: Yup.string().required('Gender is required'),
         email: Yup.string().email('Invalid email').required('Email is required'),
         contact: Yup.string().matches(/^\d{10,15}$/, 'Invalid contact number').required('Contact is required'),
-        employeeType: Yup.string().required('Employee Type is required'),
+        type: Yup.string().required('Employee Type is required'),
         department: Yup.string().required('Department is required'),
         address: Yup.string().required('Address is required'),
     });
@@ -62,7 +62,7 @@ const AddEmployee = ({ navigation }) => {
                         gender: '',
                         email: '',
                         contact: '',
-                        employeeType: '',
+                        type: '',
                         department: '',
                         address: '',
                     }}
@@ -140,15 +140,15 @@ const AddEmployee = ({ navigation }) => {
                             <Text style={styles.label}>Employee Type</Text>
                             <DropDownPicker
                                 open={open}
-                                value={values.employeeType}
+                                value={values.type}
                                 items={employeeTypeOptions}
                                 setOpen={setOpen}
-                                setValue={(callback) => setFieldValue('employeeType', callback())}
+                                setValue={(callback) => setFieldValue('type', callback())}
                                 style={styles.dropdown}
                                 dropDownContainerStyle={styles.dropdownContainer}
                                 placeholder="Select Employee Type"
                             />
-                            {touched.employeeType && errors.employeeType && <Text style={styles.errorText}>{errors.employeeType}</Text>}
+                            {touched.type && errors.type && <Text style={styles.errorText}>{errors.type}</Text>}
 
                             <Text style={styles.label}>Department</Text>
                             <CustomTextInput

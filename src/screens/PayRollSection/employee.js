@@ -90,7 +90,7 @@ const Employee = ({ navigation }) => {
             <Text style={[styles.tableData, { width: 140 }]}>{item.contact}</Text>
             <Text style={[styles.tableData, { width: 160 }]}>{item.email}</Text>
             <Text style={[styles.tableData, { width: 80 }]}>{item.gender}</Text>
-            <Text style={[styles.tableData, { width: 120 }]}>{item.employeeType}</Text>
+            <Text style={[styles.tableData, { width: 120 }]}>{item.type}</Text>
             <Text style={[styles.tableData, { width: 120 }]}>{item.department}</Text>
 
         </TouchableOpacity>
